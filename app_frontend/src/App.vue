@@ -1,6 +1,6 @@
 <script setup>
   import { ref } from 'vue';
-  import LateralMenu from './components/lateral-menu/LateralMenu.vue';
+  import SideMenu from './components/lateral-menu/SideMenu.vue';
   import AppHeader from './components/AppHeader.vue';
 
   const auth_layout = ref(false);
@@ -9,7 +9,7 @@
 <template>
   <template v-if="! auth_layout">
     <div class="app-container">
-      <LateralMenu />
+      <SideMenu />
       <div class="main-content-container">
         <AppHeader />
         <main>
