@@ -1,7 +1,8 @@
 <script setup>
-
 </script>
 
 <template>
-  teste
+  <div>
+    asdasdkjasdka
+  </div>
 </template>

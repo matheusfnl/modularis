@@ -1,13 +1,16 @@
-import { createMemoryHistory, createRouter } from 'vue-router'
+import { createWebHistory, createRouter } from 'vue-router'
 
-import MainView from '../views/MainView.vue'
+import DashboardView from '../views/DashboardView.vue'
+import LoginView from '../views/LoginView.vue'
 
 const routes = [
-  { path: '/', component: MainView },
+  { path: '/', redirect: '/dashboard' },
+  { path: '/dashboard', component: DashboardView, },
+  { path: '/login', component: LoginView, meta: { auth: true } }
 ]
 
 const router = createRouter({
-  history: createMemoryHistory(),
+  history: createWebHistory(),
   routes,
 })
 

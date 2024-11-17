@@ -26,11 +26,7 @@
     { label: 'Organização 2', command: () => alert('Clicou na opção 2!') },
   ]);
 
-  const openOrganizationMenu = (event) => {
-    console.log('chegou aqui')
-
-    organizationMenu.value.toggle(event)
-  };
+  const openOrganizationMenu = (event) => organizationMenu.value.toggle(event);
 </script>
 
 <template>
@@ -143,7 +139,7 @@
   .organization-change-container {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 6px;
     cursor: pointer;
     width: 100%;
   }

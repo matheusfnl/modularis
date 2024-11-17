@@ -1,9 +1,14 @@
 <script setup>
-  import { ref } from 'vue';
+  import { ref, watchEffect } from 'vue';
+  import { useRoute } from 'vue-router';
+
   import SideMenu from './components/side-menu/SideMenu.vue';
   import AppHeader from './components/AppHeader.vue';
 
   const auth_layout = ref(false);
+  const route = useRoute();
+
+  watchEffect(() => auth_layout.value = route.meta.auth || false);
 </script>
 
 <template>
@@ -18,6 +23,10 @@
       </div>
     </div>
   </template>
+
+  <template v-else>
+    <RouterView />
+  </template>
 </template>
 
 <style scoped>
@@ -29,5 +38,6 @@
   .main-content-container {
     display: flex;
     flex-direction: column;
+    flex: 1;
   }
 </style>

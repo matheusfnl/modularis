@@ -17,6 +17,7 @@
 
   --info-color-1: #F0F1FA;
   --info-color-3: #4F5AED;
+  --info-color-4: #5100D7;
 
   --text-3: #EAEAEA;
   --text-4: #DCDCDC;
@@ -26,9 +27,10 @@
   --text-8: #171C26;
   --text-9: #000000;
 
-  --base-1: #FFFFFF
+  --base-1: #FFFFFF;
   --base-2: #F9FAFC;
   --base-3: #F4F7FC;
+  --base-4: #BFBFBF;
 
   --text-contrast-3: #303031;
   --text-contrast-4: #747474;
