@@ -11,7 +11,7 @@
 <template>
   <AuthBase>
     <p>
-      ACESSAR
+      REGISTRAR
     </p>
 
     <div class="input-containers">
@@ -20,15 +20,25 @@
         <InputText placeholder="Usuário" />
       </IconField>
 
+      <IconField class="container-full-width">
+        <InputIcon class="pi pi-at" />
+        <InputText placeholder="E-mail" />
+      </IconField>
+
       <IconField>
         <InputIcon class="pi pi-lock z-index-1" />
         <Password placeholder="Senha" class="container-full-width w-100 custom-password-input" :feedback="false" toggleMask />
       </IconField>
 
-      <Button>Entrar</Button>
+      <IconField>
+        <InputIcon class="pi pi-verified z-index-1" />
+        <Password placeholder="Confirmar a senha" class="container-full-width w-100 custom-password-input" :feedback="false" toggleMask />
+      </IconField>
+
+      <Button>Criar</Button>
 
       <div class="extra-info-container">
-        <span>Não possui uma conta? <router-link router-link to="/register">Registrar</router-link></span>
+        <span>Já possui uma conta? <router-link router-link to="/login">Entrar</router-link></span>
       </div>
     </div>
   </AuthBase>
