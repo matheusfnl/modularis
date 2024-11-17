@@ -1,6 +1,6 @@
 <script setup>
   import { ref } from 'vue';
-  import SideMenu from './components/lateral-menu/SideMenu.vue';
+  import SideMenu from './components/side-menu/SideMenu.vue';
   import AppHeader from './components/AppHeader.vue';
 
   const auth_layout = ref(false);

@@ -20,7 +20,7 @@
 </script>
 
 <template>
-  <aside class="lateral-menu">
+  <aside class="side-menu">
     <div class="logo-container unselectable">
       Modularis
     </div>
@@ -57,7 +57,7 @@
 <style scoped>
   @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
-  .lateral-menu {
+  .side-menu {
     width: 267px;
     height: 100%;
     background-color: var(--base-contrast-1);
@@ -101,7 +101,6 @@
     justify-content: center;
     align-items: center;
     border-top: 2px solid var(--text-contrast-3);
-    padding: 0px 24px;
   }
 
   .organization-info-container {
