@@ -1,6 +1,8 @@
 <script setup>
   import { ref } from 'vue';
 
+  import TieredMenu from 'primevue/tieredmenu';
+
   import MenuOption from './MenuOption.vue';
   import DashboardIcon from '../../icons/DashboardIcon.vue';
   import ToDoIcon from '../../icons/ToDoIcon.vue';
@@ -17,6 +19,18 @@
     { text: 'Funcionários', slug: 'employees', icon: EmployeesIcon },
     { text: 'Financeiro', slug: 'financial', icon: PigBankIcon, fill: true },
   ]);
+
+  const organizationMenu = ref(null);
+  const menuItems = ref([
+    { label: 'Organização 1', command: () => alert('Clicou na opção 1!') },
+    { label: 'Organização 2', command: () => alert('Clicou na opção 2!') },
+  ]);
+
+  const openOrganizationMenu = (event) => {
+    console.log('chegou aqui')
+
+    organizationMenu.value.toggle(event)
+  };
 </script>
 
 <template>
@@ -40,7 +54,9 @@
         <img class="organization-photo" :src="EmptyPhoto" alt="organization-photo" />
 
         <div class="organization-name-container">
-          <div class="organization-change-container">
+          <TieredMenu :model="menuItems" ref="organizationMenu" id="overlay_tmenu" popup />
+
+          <div class="organization-change-container" @click="openOrganizationMenu">
             <span class="organization-name-text">Organização Legal</span>
             <ChevronIcon size="10" />
           </div>

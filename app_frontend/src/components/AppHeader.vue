@@ -2,7 +2,7 @@
 </script>
 
 <template>
-  <aside>
+  <header>
     header
-  </aside>
+  </header>
 </template>
