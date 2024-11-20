@@ -51,14 +51,14 @@
 <style scoped>
   .header-container {
     height: 68px;
-    border-bottom: 1px solid var(--text-3);
+    border-bottom: 1px solid var(--text-2);
     display: flex;
     align-items: center;
   }
 
   .header-content {
-    width: 92%;
-    margin: auto;
+    padding: 0 60px;
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -79,7 +79,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--text-5);
+    color: var(--text-4);
     position: relative;
     cursor: pointer;
   }

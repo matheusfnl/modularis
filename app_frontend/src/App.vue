@@ -17,7 +17,7 @@
       <SideMenu />
       <div class="main-content-container">
         <AppHeader />
-        <main>
+        <main class="main-containeer">
           <RouterView />
         </main>
       </div>
@@ -40,4 +40,6 @@
     flex-direction: column;
     flex: 1;
   }
+
+  .main-containeer { padding: 20px; }
 </style>
