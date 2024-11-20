@@ -40,7 +40,7 @@
 <style scoped>
   .borderless,
   .borderless:hover,
-  .borderless:focus { border: none }
+  .borderless:focus { border: none !important }
 
   .dashboard-container {
     padding: 8px 40px;
