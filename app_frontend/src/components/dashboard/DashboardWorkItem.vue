@@ -42,6 +42,7 @@
   }
 
   .border-bottom { border-bottom: 1px solid var(--text-2); }
+  .item-container:not(.border-bottom) { padding-bottom: 0px; }
   .work-content-container p { margin: 0px; }
   .workf-title {
     font-size: 14px;
