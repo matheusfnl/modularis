@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use App\Events\User\Created;
+use App\Models\ModuleServices\Finances\Finantial;
 use App\Traits\InteractsWithObject;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
@@ -52,6 +54,16 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
             ->withPivot('role');
     }
 
+    public function modules(): BelongsToMany
+    {
+        return $this->belongsToMany(Module::class);
+    }
+
+    public function moduleUser(): HasMany
+    {
+        return $this->hasMany(ModuleUser::class);
+    }
+
     public function tokens(): HasManyThrough
     {
         return $this->hasManyThrough(
@@ -62,6 +74,16 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
             'id',
             'id',
         );
+    }
+
+    public function finances(): HasMany
+    {
+        return $this->hasMany(Finantial::class);
+    }
+
+    public function operatedFinances(): HasMany
+    {
+        return $this->hasMany(Finantial::class, 'operator_id');
     }
 
     public function getJWTIdentifier(): string
