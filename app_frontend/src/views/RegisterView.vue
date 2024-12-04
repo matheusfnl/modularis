@@ -13,18 +13,18 @@
 
   const store = useUserStore();
   const request_pending = ref(false);
-  const username = ref('');
+  const name = ref('');
   const email = ref('');
   const password = ref('');
-  const confirmation_password = ref('');
+  const password_confirmation = ref('');
 
   const handleRegister = async () => {
     request_pending.value = true;
     await store.register({
-      username: username.value,
+      name: name.value,
       email: email.value,
       password: password.value,
-      confirmation_password: confirmation_password.value
+      password_confirmation: password_confirmation.value
     });
     request_pending.value = false;
   }
@@ -39,7 +39,7 @@
     <div class="input-containers">
       <IconField class="container-full-width">
         <InputIcon class="pi pi-user" />
-        <InputText v-model="username" placeholder="Usuário" />
+        <InputText v-model="name" placeholder="Usuário" />
       </IconField>
 
       <IconField class="container-full-width">
@@ -54,7 +54,7 @@
 
       <IconField>
         <InputIcon class="pi pi-verified z-index-1" />
-        <Password v-model="confirmation_password" placeholder="Confirmar a senha" class="container-full-width w-100 custom-password-input" :feedback="false" toggleMask />
+        <Password v-model="password_confirmation" placeholder="Confirmar a senha" class="container-full-width w-100 custom-password-input" :feedback="false" toggleMask />
       </IconField>
 
       <Button @click="handleRegister" :disabled="request_pending">Criar</Button>
