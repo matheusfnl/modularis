@@ -1,4 +1,6 @@
 <script setup>
+  import { ref } from 'vue';
+
   import AuthBase from '../components/auth/AuthBase.vue'
 
   import InputText from 'primevue/inputtext';
@@ -6,6 +8,26 @@
   import InputIcon from 'primevue/inputicon';
   import Password from 'primevue/password';
   import Button from 'primevue/button';
+
+  import { useUserStore } from '../store';
+
+  const store = useUserStore();
+  const request_pending = ref(false);
+  const username = ref('');
+  const email = ref('');
+  const password = ref('');
+  const confirmation_password = ref('');
+
+  const handleRegister = async () => {
+    request_pending.value = true;
+    await store.register({
+      username: username.value,
+      email: email.value,
+      password: password.value,
+      confirmation_password: confirmation_password.value
+    });
+    request_pending.value = false;
+  }
 </script>
 
 <template>
@@ -17,25 +39,25 @@
     <div class="input-containers">
       <IconField class="container-full-width">
         <InputIcon class="pi pi-user" />
-        <InputText placeholder="Usuário" />
+        <InputText v-model="username" placeholder="Usuário" />
       </IconField>
 
       <IconField class="container-full-width">
         <InputIcon class="pi pi-at" />
-        <InputText placeholder="E-mail" />
+        <InputText v-model="email" placeholder="E-mail" />
       </IconField>
 
       <IconField>
         <InputIcon class="pi pi-lock z-index-1" />
-        <Password placeholder="Senha" class="container-full-width w-100 custom-password-input" :feedback="false" toggleMask />
+        <Password  v-model="password" placeholder="Senha" class="container-full-width w-100 custom-password-input" :feedback="false" toggleMask />
       </IconField>
 
       <IconField>
         <InputIcon class="pi pi-verified z-index-1" />
-        <Password placeholder="Confirmar a senha" class="container-full-width w-100 custom-password-input" :feedback="false" toggleMask />
+        <Password v-model="confirmation_password" placeholder="Confirmar a senha" class="container-full-width w-100 custom-password-input" :feedback="false" toggleMask />
       </IconField>
 
-      <Button>Criar</Button>
+      <Button @click="handleRegister" :disabled="request_pending">Criar</Button>
 
       <div class="extra-info-container">
         <span>Já possui uma conta? <router-link router-link to="/login">Entrar</router-link></span>

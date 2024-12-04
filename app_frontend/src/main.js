@@ -1,14 +1,17 @@
 import { createApp } from 'vue'
+import { createPinia } from 'pinia'
 import PrimeVue from 'primevue/config';
 import Aura from '@primevue/themes/aura';
 import { definePreset } from '@primevue/themes';
 
 import './style.css'
 import 'primeicons/primeicons.css'
+import './plugins/axios';
 
 import App from './App.vue'
 import router from './routes'
 
+const pinia = createPinia()
 const preset = definePreset(Aura, {
   semantic: {
       primary: {
@@ -59,6 +62,7 @@ const preset = definePreset(Aura, {
 
 createApp(App)
   .use(router)
+  .use(pinia)
   .use(PrimeVue, { theme: {
     preset,
     options: { darkModeSelector: false }
