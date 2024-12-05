@@ -6,7 +6,7 @@
 
   import MenuOption from './MenuOption.vue';
   import DashboardIcon from '../../icons/DashboardIcon.vue';
-  import ToDoIcon from '../../icons/ToDoIcon.vue';
+  import TeamIcon from '../../icons/TeamIcon.vue';
   import EmployeesIcon from '../../icons/EmployeesIcon.vue';
   import PigBankIcon from '../../icons/PigBankIcon.vue';
   import ChevronIcon from '../../icons/ChevronIcon.vue';
@@ -18,8 +18,8 @@
 
   const menu_options = ref([
     { text: 'Dashboard', slug: 'dashboard', icon: DashboardIcon },
-    { text: 'Trabalhos', slug: 'to-do', icon: ToDoIcon },
     { text: 'Funcionários', slug: 'employees', icon: EmployeesIcon },
+    { text: 'Times', slug: 'teams', icon: TeamIcon, fill: true },
     { text: 'Financeiro', slug: 'financial', icon: PigBankIcon, fill: true },
   ]);
 
@@ -36,7 +36,7 @@
 
 <template>
   <aside class="side-menu">
-    <div class="logo-container unselectable">
+    <div class="logo-container unselectable" @click="router.push('/dashboard')">
       Modularis
     </div>
 
