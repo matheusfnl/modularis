@@ -1,5 +1,6 @@
 <script setup>
   import { ref } from 'vue';
+  import { useRouter, useRoute } from 'vue-router';
 
   import TieredMenu from 'primevue/tieredmenu';
 
@@ -12,7 +13,9 @@
 
   import EmptyPhoto from '../../assets/empty-photo.png';
 
-  const selected_option = ref('dashboard');
+  const router = useRouter();
+  const route = useRoute();
+
   const menu_options = ref([
     { text: 'Dashboard', slug: 'dashboard', icon: DashboardIcon },
     { text: 'Trabalhos', slug: 'to-do', icon: ToDoIcon },
@@ -27,6 +30,8 @@
   ]);
 
   const openOrganizationMenu = (event) => organizationMenu.value.toggle(event);
+  const selectedOption = (option) => route.path.startsWith(`/${option.slug}`);
+  const setSelectedOption = (option) => router.push(`/${option.slug}`);
 </script>
 
 <template>
@@ -39,9 +44,9 @@
       <MenuOption
         v-for="option in menu_options"
         :key="option.slug"
-        :selected="option.slug === selected_option"
+        :selected="selectedOption(option)"
         :option="option"
-        @click="selected_option = option.slug"
+        @click="setSelectedOption(option)"
       />
     </div>
 
