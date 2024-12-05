@@ -10,7 +10,7 @@
 
   const store = useUserStore();
 
-  const getIntroduction = computed(() => `Olá, ${store.user.name}!`);
+  const getIntroduction = computed(() => `Olá, ${store.user?.name}!`);
 </script>
 
 <template>

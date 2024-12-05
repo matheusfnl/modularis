@@ -1,8 +1,10 @@
 <script setup>
-  import { ref } from 'vue';
+  import { ref, onMounted, computed } from 'vue';
   import { useRouter, useRoute } from 'vue-router';
 
   import TieredMenu from 'primevue/tieredmenu';
+  import Dialog from 'primevue/dialog';
+  import CreateTenantModal from './CreateTenantModal.vue';
 
   import MenuOption from './MenuOption.vue';
   import DashboardIcon from '../../icons/DashboardIcon.vue';
@@ -13,8 +15,12 @@
 
   import EmptyTenant from '../../assets/empty-tenant.png';
 
+  import { useTenantStore, useFlowStore } from '../../store';
+
   const router = useRouter();
   const route = useRoute();
+  const tenantStore = useTenantStore();
+  const flowStore = useFlowStore();
 
   const menu_options = ref([
     { text: 'Dashboard', slug: 'dashboard', icon: DashboardIcon },
@@ -23,15 +29,50 @@
     { text: 'Financeiro', slug: 'financial', icon: PigBankIcon, fill: true },
   ]);
 
+  const tenant_modal_visible = ref(false);
   const organizationMenu = ref(null);
-  const menuItems = ref([
-    { label: 'Organização 1', command: () => alert('Clicou na opção 1!') },
-    { label: 'Organização 2', command: () => alert('Clicou na opção 2!') },
+  const tenantsMenu = computed(() => {
+    const tenants = tenantStore.tenants.map(tenant => ({
+      label: tenant.name,
+      disabled: tenant.id === tenantStore.tenant.id,
+      command: () => changeOrganization(tenant),
+    }));
+
+    if (tenants.length) {
+      tenants.push({ separator: true });
+    }
+
+    return tenants;
+  });
+
+  const menuItems = computed(() => [
+    ...tenantsMenu.value,
+    { label: 'Nova organização', command: () => tenant_modal_visible.value = true },
+    { label: 'Editar organização', command: () => alert('Editar organização') },
+    { label: 'Deletar organização', command: () => alert('Deletar organização') },
   ]);
 
   const openOrganizationMenu = (event) => organizationMenu.value.toggle(event);
   const selectedOption = (option) => route.path.startsWith(`/${option.slug}`);
   const setSelectedOption = (option) => router.push(`/${option.slug}`);
+
+  const changeOrganization = async (tenant) => {
+    flowStore.setAppRequestPending(true);
+    await tenantStore.changeTenant({ tenant });
+    flowStore.setAppRequestPending(false);
+  };
+
+  const closeTenantModal = () => tenant_modal_visible.value = false;
+  const createTenant = (body) => {
+    console.log(body)
+    // CRIA A ORG AQUI
+
+    closeTenantModal();
+  }
+
+  onMounted(() => {
+    tenantStore.fetchTenants();
+  })
 </script>
 
 <template>
@@ -68,6 +109,13 @@
         </div>
       </div>
     </div>
+
+    <Dialog v-model:visible="tenant_modal_visible" modal header="Criar uma organização" :style="{ width: '25rem' }">
+      <CreateTenantModal
+        @cancel="closeTenantModal"
+        @create="createTenant"
+      />
+    </Dialog>
   </aside>
 </template>
 
