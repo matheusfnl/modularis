@@ -9,6 +9,7 @@ import FinancialView from'../views/FinancialView.vue'
 import {
   useUserStore,
   useTenantStore,
+  useFlowStore,
 } from '../store';
 
 const routes = [
@@ -27,6 +28,7 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const userStore = useUserStore();
   const tenantStore = useTenantStore();
+  const flowStore = useFlowStore();
   const token = localStorage.getItem('@auth');
 
   if (token) {
@@ -41,7 +43,9 @@ router.beforeEach(async (to, from, next) => {
       actions.push(tenantStore.fetchTenant({ tenant_id }));
     }
 
+    flowStore.setAppRequestPending(true);
     await Promise.all(actions);
+    flowStore.setAppRequestPending(false);
   }
 
   if (token && ! userStore.user) {
