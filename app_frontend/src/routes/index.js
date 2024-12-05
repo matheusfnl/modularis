@@ -1,11 +1,15 @@
 import { createWebHistory, createRouter } from 'vue-router'
+import { jwtDecode } from "jwt-decode";
 
 import DashboardView from '../views/DashboardView.vue'
 import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import FinancialView from'../views/FinancialView.vue'
 
-import { useUserStore } from '../store';
+import {
+  useUserStore,
+  useTenantStore,
+} from '../store';
 
 const routes = [
   { path: '/', redirect: '/dashboard' },
@@ -22,13 +26,29 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   const userStore = useUserStore();
+  const tenantStore = useTenantStore();
   const token = localStorage.getItem('@auth');
 
-  if (token && !userStore.user) {
-    await userStore.fetchUser();
+  if (token) {
+    const actions = [];
+
+    if (! userStore.user) {
+      actions.push(userStore.fetchUser());
+    }
+
+    if (! tenantStore.tenant) {
+      const { tenant_id } = jwtDecode(token);
+      actions.push(tenantStore.fetchTenant({ tenant_id }));
+    }
+
+    await Promise.all(actions);
   }
 
-  if (!userStore.user && !to.meta.auth) {
+  if (token && ! userStore.user) {
+    localStorage.removeItem('@auth');
+  }
+
+  if (! userStore.user && !to.meta.auth) {
     return next('/login');
   }
 
