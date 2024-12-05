@@ -1,5 +1,6 @@
 <script setup>
   import { ref } from 'vue';
+  import { useRouter } from 'vue-router';
 
   import AuthBase from '../components/auth/AuthBase.vue'
 
@@ -12,6 +13,8 @@
   import { useUserStore } from '../store';
 
   const store = useUserStore();
+  const router = useRouter();
+
   const request_pending = ref(false);
   const name = ref('');
   const email = ref('');
@@ -27,6 +30,7 @@
       password_confirmation: password_confirmation.value
     });
     request_pending.value = false;
+    router.push('/dashboard');
   }
 </script>
 

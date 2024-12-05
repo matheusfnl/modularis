@@ -3,6 +3,7 @@ import { defineStore }  from 'pinia';
 import login from '../api/auth/login';
 import register from '../api/auth/register';
 import logout from '../api/auth/logout';
+import fetchUser from '../api/auth/fetchUser';
 import { handleRequest } from '../helpers/handleRequest';
 
 export const useUserStore = defineStore('user', {
@@ -33,6 +34,12 @@ export const useUserStore = defineStore('user', {
         this.user = null;
         localStorage.removeItem('@auth');
       });
+    },
+    async fetchUser() {
+      await handleRequest(async () => {
+        const { data } = await fetchUser();
+        this.user = data;
+      }, () => this.user = null);
     },
   },
 });

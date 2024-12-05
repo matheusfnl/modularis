@@ -1,5 +1,6 @@
 <script setup>
   import { ref } from 'vue';
+  import { useRouter } from 'vue-router';
 
   import InputText from 'primevue/inputtext';
   import IconField from 'primevue/iconfield';
@@ -10,11 +11,18 @@
 
   import EmptyPhoto from '../assets/empty-photo.png';
 
+  import { useUserStore } from '../store';
+
+  const store = useUserStore();
+  const router = useRouter();
+
   const profileMenu = ref(null);
   const notificationMenu = ref(null);
   const menuItems = ref([
-    { label: 'Opção 1', command: () => alert('Clicou na opção 1!') },
-    { label: 'Opção 2', command: () => alert('Clicou na opção 2!') },
+    { label: 'Sair', command: async () => {
+      await store.logout();
+      router.push('/login');
+    } },
   ]);
 
   const openProfileMenu = (event) => profileMenu.value.toggle(event);
@@ -24,19 +32,7 @@
 <template>
   <header class="header-container">
     <div class="header-content">
-      <IconField>
-        <InputIcon class="pi pi-search" />
-        <InputText placeholder="Search..." class="without-box-shadow" />
-      </IconField>
-
       <div class="lateral-content">
-        <div class="notification-container" @click="openNotificationMenu">
-          <i class="pi pi-bell" />
-          <div class="notification-popup" />
-        </div>
-
-        <TieredMenu :model="menuItems" ref="notificationMenu" popup />
-
         <div class="profile-container" @click="openProfileMenu">
           <img class="profile-photo" :src="EmptyPhoto" alt="profile-photo" />
           <ChevronIcon size="12" />
@@ -61,7 +57,7 @@
     width: 100%;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end
   }
 
   .without-box-shadow { box-shadow: none; }

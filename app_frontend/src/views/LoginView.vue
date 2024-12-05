@@ -1,4 +1,7 @@
 <script setup>
+  import { ref } from 'vue';
+  import { useRouter } from 'vue-router';
+
   import AuthBase from '../components/auth/AuthBase.vue'
 
   import InputText from 'primevue/inputtext';
@@ -6,6 +9,25 @@
   import InputIcon from 'primevue/inputicon';
   import Password from 'primevue/password';
   import Button from 'primevue/button';
+
+  import { useUserStore } from '../store';
+
+  const store = useUserStore();
+  const router = useRouter();
+
+  const request_pending = ref(false);
+  const email = ref('');
+  const password = ref('');
+
+  const handleLogin = async () => {
+    request_pending.value = true;
+    await store.login({
+      email: email.value,
+      password: password.value,
+    });
+    request_pending.value = false;
+    router.push('/dashboard');
+  }
 </script>
 
 <template>
@@ -16,16 +38,16 @@
 
     <div class="input-containers">
       <IconField class="container-full-width">
-        <InputIcon class="pi pi-user" />
-        <InputText placeholder="Usuário" />
+        <InputIcon class="pi pi-at" />
+        <InputText v-model="email" placeholder="E-mail" />
       </IconField>
 
       <IconField>
         <InputIcon class="pi pi-lock z-index-1" />
-        <Password placeholder="Senha" class="container-full-width w-100 custom-password-input" :feedback="false" toggleMask />
+        <Password v-model="password" placeholder="Senha" class="container-full-width w-100 custom-password-input" :feedback="false" toggleMask />
       </IconField>
 
-      <Button>Entrar</Button>
+      <Button  @click="handleLogin" :disabled="request_pending">Entrar</Button>
 
       <div class="extra-info-container">
         <span>Não possui uma conta? <router-link router-link to="/register">Registrar</router-link></span>
