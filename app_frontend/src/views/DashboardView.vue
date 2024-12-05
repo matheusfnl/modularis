@@ -1,13 +1,20 @@
 <script setup>
+  import { computed } from 'vue';
   import Button from 'primevue/button';
 
   import SectionHeader from '../components/SectionHeader.vue';
   import AppCard from '../components/AppCard.vue'
   import DashboardWorkCard from '../components/dashboard/DashboardWorkCard.vue'
+
+  import { useUserStore } from '../store';
+
+  const store = useUserStore();
+
+  const getIntroduction = computed(() => `Olá, ${store.user.name}!`);
 </script>
 
 <template>
-  <SectionHeader title="Olá, Matheus!" description="Aqui está um resumo da sua conta">
+  <SectionHeader :title="getIntroduction" description="Aqui está um resumo da sua conta">
     <template #actions>
       <Button label="Criar trabalho" size="small" icon="pi pi-plus"  iconPos="right" />
       <Button icon="pi pi-ellipsis-h" size="small" variant="outlined" class="borderless" />

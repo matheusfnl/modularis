@@ -9,7 +9,7 @@
 
   import ChevronIcon from '../icons/ChevronIcon.vue';
 
-  import EmptyPhoto from '../assets/empty-photo.png';
+  import EmptyUser from '../assets/empty-user.png';
 
   import { useUserStore } from '../store';
 
@@ -34,7 +34,7 @@
     <div class="header-content">
       <div class="lateral-content">
         <div class="profile-container" @click="openProfileMenu">
-          <img class="profile-photo" :src="EmptyPhoto" alt="profile-photo" />
+          <img class="profile-photo" :src="EmptyUser" alt="profile-photo" />
           <ChevronIcon size="12" />
         </div>
 
@@ -101,5 +101,7 @@
     width: 48px;
     height: 48px;
     border-radius: 50%;
+    background-color: rgb(240, 240, 240);
+    padding: 8px;
   }
 </style>

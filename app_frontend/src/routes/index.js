@@ -43,9 +43,11 @@ router.beforeEach(async (to, from, next) => {
       actions.push(tenantStore.fetchTenant({ tenant_id }));
     }
 
-    flowStore.setAppRequestPending(true);
-    await Promise.all(actions);
-    flowStore.setAppRequestPending(false);
+    if (actions.length) {
+      flowStore.setAppRequestPending(true);
+      await Promise.all(actions);
+      flowStore.setAppRequestPending(false);
+    }
   }
 
   if (token && ! userStore.user) {

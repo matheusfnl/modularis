@@ -11,7 +11,7 @@
   import PigBankIcon from '../../icons/PigBankIcon.vue';
   import ChevronIcon from '../../icons/ChevronIcon.vue';
 
-  import EmptyPhoto from '../../assets/empty-photo.png';
+  import EmptyTenant from '../../assets/empty-tenant.png';
 
   const router = useRouter();
   const route = useRoute();
@@ -52,7 +52,7 @@
 
     <div class="footer-container">
       <div class="organization-info-container">
-        <img class="organization-photo" :src="EmptyPhoto" alt="organization-photo" />
+        <img class="organization-photo" :src="EmptyTenant" alt="organization-photo" />
 
         <div class="organization-name-container">
           <TieredMenu :model="menuItems" ref="organizationMenu" id="overlay_tmenu" popup />
@@ -132,6 +132,8 @@
     width: 48px;
     height: 48px;
     border-radius: 50%;
+    background-color: rgb(236, 236, 236);
+    padding: 4px;
   }
 
   .organization-name-container {
