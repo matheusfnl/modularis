@@ -5,6 +5,8 @@
   import TieredMenu from 'primevue/tieredmenu';
   import Dialog from 'primevue/dialog';
   import CreateTenantModal from './CreateTenantModal.vue';
+  import DeleteTenantModal from './DeleteTenantModal.vue';
+  import EditTenantModal from './EditTenantModal.vue';
 
   import MenuOption from './MenuOption.vue';
   import DashboardIcon from '../../icons/DashboardIcon.vue';
@@ -22,6 +24,8 @@
   const tenantStore = useTenantStore();
   const flowStore = useFlowStore();
 
+  // Menu options
+
   const menu_options = ref([
     { text: 'Dashboard', slug: 'dashboard', icon: DashboardIcon },
     { text: 'Funcionários', slug: 'employees', icon: EmployeesIcon },
@@ -29,8 +33,6 @@
     { text: 'Financeiro', slug: 'financial', icon: PigBankIcon, fill: true },
   ]);
 
-  const tenant_create_request_pending = ref(false);
-  const tenant_modal_visible = ref(false);
   const organizationMenu = ref(null);
   const tenantsMenu = computed(() => {
     const tenants = tenantStore.tenants.map(tenant => ({
@@ -49,13 +51,15 @@
   const menuItems = computed(() => [
     ...tenantsMenu.value,
     { label: 'Nova organização', command: () => tenant_modal_visible.value = true },
-    { label: 'Editar organização', command: () => alert('Editar organização') },
-    { label: 'Deletar organização', command: () => alert('Deletar organização') },
+    { label: 'Editar organização', command: () => tenant_edit_modal_visible.value = true },
+    { label: 'Deletar organização', command: () =>  tenant_delete_visible.value = true, disabled: getIsDefaultTenant.value},
   ]);
 
   const openOrganizationMenu = (event) => organizationMenu.value.toggle(event);
   const selectedOption = (option) => route.path.startsWith(`/${option.slug}`);
   const setSelectedOption = (option) => router.push(`/${option.slug}`);
+
+  // Change tenant
 
   const changeOrganization = async (tenant) => {
     flowStore.setAppRequestPending(true);
@@ -64,6 +68,11 @@
     flowStore.setAppRequestPending(false);
   };
 
+  // Create tenant
+
+  const tenant_create_request_pending = ref(false);
+  const tenant_modal_visible = ref(false);
+
   const closeTenantModal = () => tenant_modal_visible.value = false;
   const createTenant = async (body) => {
     tenant_create_request_pending.value = true;
@@ -71,6 +80,42 @@
     closeTenantModal();
     tenant_create_request_pending.value = false;
   }
+
+  // Delete tenant
+
+  const tenant_delete_visible = ref(false);
+
+  const getIsDefaultTenant = computed(() => {
+    return tenantStore.tenant?.id === tenantStore.tenants[tenantStore.tenants.length - 1]?.id;
+  });
+
+  const closeDeleteTenantModal = () => tenant_delete_visible.value = false;
+  const deleteCurrentTenant = async () => {
+    flowStore.setAppRequestPending(true);
+    closeDeleteTenantModal();
+    const current_tenant_id = tenantStore.tenant.id;
+    await tenantStore.changeTenant({ tenant: tenantStore.tenants[tenantStore.tenants.length - 1] });
+    await tenantStore.deleteTenant({ tenant_id: current_tenant_id });
+    flowStore.setAppRequestPending(false);
+  }
+
+  // Edit tenant
+
+  const tenant_edit_request_pending = ref(false);
+  const tenant_edit_modal_visible = ref(false);
+
+  const closeEditTenantModal = () => tenant_edit_modal_visible.value = false;
+  const editCurrentTenant = async (body) => {
+    tenant_edit_request_pending.value = true;
+    await tenantStore.editTenant({
+      tenant_id: tenantStore.tenant.id,
+      body,
+    });
+
+    tenant_edit_request_pending.value = false;
+    closeEditTenantModal();
+  }
+
 
   onMounted(() => {
     tenantStore.fetchTenants();
@@ -117,6 +162,23 @@
         @cancel="closeTenantModal"
         @create="createTenant"
         :request_pending="tenant_create_request_pending"
+      />
+    </Dialog>
+
+    <Dialog v-model:visible="tenant_delete_visible" modal header="Deletar a organização" :style="{ width: '25rem' }">
+      <DeleteTenantModal
+        @cancel="closeDeleteTenantModal"
+        @delete="deleteCurrentTenant"
+      />
+    </Dialog>
+
+    <Dialog v-model:visible="tenant_edit_modal_visible" modal header="Editar a organização" :style="{ width: '25rem' }">
+      <EditTenantModal
+        v-if="tenantStore.tenant"
+        @cancel="closeEditTenantModal"
+        @edit="editCurrentTenant"
+        :request_pending="tenant_edit_request_pending"
+        :tenant="tenantStore.tenant"
       />
     </Dialog>
   </aside>

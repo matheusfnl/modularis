@@ -4,6 +4,8 @@ import fetchTenant from '../api/tenant/fetchTenant';
 import fetchTenants from '../api/tenant/fetchTenants';
 import changeTenant from '../api/tenant/changeTenant';
 import createTenant from '../api/tenant/createTenant';
+import deleteTenant from '../api/tenant/deleteTenant';
+import editTenant  from '../api/tenant/editTenant';
 
 import { handleRequest } from '../helpers/handleRequest';
 
@@ -41,5 +43,26 @@ export const useTenantStore = defineStore('tenant', {
         this.tenants.unshift(data);
       });
     },
+    async deleteTenant({ tenant_id }) {
+      await handleRequest(async () => {
+        await deleteTenant(tenant_id);
+
+        this.tenants = this.tenants.filter(tenant => tenant.id !== tenant_id);
+      });
+    },
+    async editTenant({ tenant_id, body }) {
+      await handleRequest(async () => {
+        const { data } = await editTenant(tenant_id, body);
+
+        this.tenant = data;
+        this.tenants = this.tenants.map(tenant => {
+          if (tenant.id === tenant_id) {
+            return data;
+          }
+
+          return tenant;
+        });
+      });
+    }
   }
 });

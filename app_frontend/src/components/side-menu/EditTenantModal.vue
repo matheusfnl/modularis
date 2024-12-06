@@ -1,17 +1,25 @@
 <script setup>
-  import { ref, defineEmits, defineProps } from 'vue';
+  import { ref, defineEmits, defineProps, onMounted } from 'vue';
 
   import InputText from 'primevue/inputtext';
   import Button from 'primevue/button';
 
   const name = ref('');
-  const emit = defineEmits(['close', 'create']);
+  const emit = defineEmits(['close', 'edit']);
   const props = defineProps({
     request_pending: {
       type: Boolean,
       required: true,
+    },
+    tenant: {
+      type: Object,
+      required: true,
     }
   });
+
+  onMounted(() => {
+    name.value = props.tenant.name;
+  })
 </script>
 
 <template>
@@ -22,7 +30,7 @@
 
   <div class="actions-container">
     <Button :disabled="request_pending" type="button" label="Cancelar" severity="secondary" @click="emit('cancel')"></Button>
-    <Button :disabled="request_pending || ! name.trim().length" type="button" label="Salvar" @click="emit('create', { name: name.trim() })"></Button>
+    <Button :disabled="request_pending || ! name.trim().length" type="button" label="Editar" @click="emit('edit', { name: name.trim() })"></Button>
   </div>
 </template>
 
