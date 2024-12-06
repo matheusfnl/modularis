@@ -1,11 +1,17 @@
 <script setup>
-  import { ref, defineEmits } from 'vue';
+  import { ref, defineEmits, defineProps } from 'vue';
 
   import InputText from 'primevue/inputtext';
   import Button from 'primevue/button';
 
   const name = ref('');
   const emit = defineEmits(['close', 'create']);
+  const props = defineProps({
+    request_pending: {
+      type: Boolean,
+      required: true,
+    }
+  });
 </script>
 
 <template>
@@ -15,8 +21,8 @@
   </div>
 
   <div class="actions-container">
-    <Button type="button" label="Cancel" severity="secondary" @click="emit('cancel')"></Button>
-    <Button type="button" label="Save" @click="emit('create', { name })"></Button>
+    <Button :disabled="request_pending" type="button" label="Cancel" severity="secondary" @click="emit('cancel')"></Button>
+    <Button :disabled="request_pending" type="button" label="Save" @click="emit('create', { name })"></Button>
   </div>
 </template>
 

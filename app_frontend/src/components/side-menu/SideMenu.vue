@@ -29,12 +29,13 @@
     { text: 'Financeiro', slug: 'financial', icon: PigBankIcon, fill: true },
   ]);
 
+  const tenant_create_request_pending = ref(false);
   const tenant_modal_visible = ref(false);
   const organizationMenu = ref(null);
   const tenantsMenu = computed(() => {
     const tenants = tenantStore.tenants.map(tenant => ({
       label: tenant.name,
-      disabled: tenant.id === tenantStore.tenant.id,
+      disabled: tenant.id === tenantStore.tenant?.id,
       command: () => changeOrganization(tenant),
     }));
 
@@ -58,16 +59,17 @@
 
   const changeOrganization = async (tenant) => {
     flowStore.setAppRequestPending(true);
+    closeTenantModal();
     await tenantStore.changeTenant({ tenant });
     flowStore.setAppRequestPending(false);
   };
 
   const closeTenantModal = () => tenant_modal_visible.value = false;
-  const createTenant = (body) => {
-    console.log(body)
-    // CRIA A ORG AQUI
-
+  const createTenant = async (body) => {
+    tenant_create_request_pending.value = true;
+    await tenantStore.createTenant(body);
     closeTenantModal();
+    tenant_create_request_pending.value = false;
   }
 
   onMounted(() => {
@@ -114,6 +116,7 @@
       <CreateTenantModal
         @cancel="closeTenantModal"
         @create="createTenant"
+        :request_pending="tenant_create_request_pending"
       />
     </Dialog>
   </aside>

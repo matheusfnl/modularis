@@ -31,23 +31,29 @@ router.beforeEach(async (to, from, next) => {
   const flowStore = useFlowStore();
   const token = localStorage.getItem('@auth');
 
-  if (token) {
-    const actions = [];
+  try {
+    if (token) {
+      const actions = [];
 
-    if (! userStore.user) {
-      actions.push(userStore.fetchUser());
-    }
+      if (! userStore.user) {
+        actions.push(userStore.fetchUser());
+      }
 
-    if (! tenantStore.tenant) {
-      const { tenant_id } = jwtDecode(token);
-      actions.push(tenantStore.fetchTenant({ tenant_id }));
-    }
+      if (! tenantStore.tenant) {
+        const { tenant_id } = jwtDecode(token);
+        actions.push(tenantStore.fetchTenant({ tenant_id }));
+      }
 
-    if (actions.length) {
-      flowStore.setAppRequestPending(true);
-      await Promise.all(actions);
-      flowStore.setAppRequestPending(false);
+      if (actions.length) {
+        flowStore.setAppRequestPending(true);
+        await Promise.all(actions);
+        flowStore.setAppRequestPending(false);
+      }
     }
+  } catch (err) {
+    localStorage.removeItem('@auth');
+
+    return next('/login');
   }
 
   if (token && ! userStore.user) {

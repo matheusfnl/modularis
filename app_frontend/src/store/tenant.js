@@ -3,6 +3,7 @@ import { defineStore }  from 'pinia';
 import fetchTenant from '../api/tenant/fetchTenant';
 import fetchTenants from '../api/tenant/fetchTenants';
 import changeTenant from '../api/tenant/changeTenant';
+import createTenant from '../api/tenant/createTenant';
 
 import { handleRequest } from '../helpers/handleRequest';
 
@@ -33,13 +34,12 @@ export const useTenantStore = defineStore('tenant', {
         this.tenant = tenant;
       });
     },
-    // async createTenant() {
-    //   await handleRequest(async () => {
-    //     const { data } = await changeTenant(tenant.id);
+    async createTenant(body) {
+      await handleRequest(async () => {
+        const { data } = await createTenant(body);
 
-    //     localStorage.setItem('@auth', data.token);
-    //     this.tenant = tenant;
-    //   });
-    // },
+        this.tenants.unshift(data);
+      });
+    },
   }
 });
