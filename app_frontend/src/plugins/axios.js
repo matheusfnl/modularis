@@ -16,3 +16,16 @@ axios.interceptors.request.use(
   },
   error => Promise.reject(error)
 );
+
+axios.interceptors.response.use(
+  response => response,
+  error => {
+    const router = useRouter();
+
+    if (error.response && error.response.status === 403) {
+      router.push('/unauthorized');
+    }
+
+    return Promise.reject(error);
+  }
+);

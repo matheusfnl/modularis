@@ -5,6 +5,7 @@ import DashboardView from '../views/DashboardView.vue'
 import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import FinancialView from'../views/FinancialView.vue'
+import UnauthorizedView from '../views/UnauthorizedView.vue'
 
 import {
   useUserStore,
@@ -18,6 +19,7 @@ const routes = [
   { path: '/login', component: LoginView, meta: { auth: true } },
   { path: '/register', component: RegisterView, meta: { auth: true } },
   { path: '/financial', component: FinancialView },
+  { path: '/unauthorized', component: UnauthorizedView },
 ]
 
 const router = createRouter({
