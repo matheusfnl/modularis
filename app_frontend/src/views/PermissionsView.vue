@@ -135,8 +135,8 @@ import Dialog from 'primevue/dialog';
 
   // Flow
   const request_pending = ref(false);
-  const finantial_users = computed(() => moduleStore.modules.find(store_module => store_module.name === 'finantial').users);
-  const employees_users = computed(() => moduleStore.modules.find(store_module => store_module.name === 'employees').users);
+  const finantial_users = computed(() => moduleStore.modules?.find(store_module => store_module.name === 'finantial')?.users);
+  const employees_users = computed(() => moduleStore.modules?.find(store_module => store_module.name === 'employees')?.users);
 
   const mapUser = (user) => {
     const mapped_user = {
@@ -151,12 +151,12 @@ import Dialog from 'primevue/dialog';
       user_id: user.user_id,
     }
 
-    if (finantial_users.value.find(finantial_user => finantial_user.user_id === user.user_id)) {
+    if (finantial_users.value && finantial_users.value.find(finantial_user => finantial_user.user_id === user.user_id)) {
       mapped_user.finantial = [true];
       mapped_user.finantial_role = moduleOptions.value.find(option => option.slug === finantial_users.value.find(finantial_user => finantial_user.user_id === user.user_id).role);
     }
 
-    if (employees_users.value.find(employee_user => employee_user.user_id === user.user_id)) {
+    if (employees_users.value && employees_users.value.find(employee_user => employee_user.user_id === user.user_id)) {
       mapped_user.employee = [true];
       mapped_user.employee_role = moduleOptions.value.find(option => option.slug === employees_users.value.find(employee_user => employee_user.user_id === user.user_id).role);
     }
