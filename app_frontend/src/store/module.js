@@ -29,7 +29,27 @@ export const useModuleStore = defineStore('module', {
       await handleRequest(async () => {
         const response = await executeModule(tenant_id, module, body);
 
-        this.module = response;
+        if (body.action === 'index') {
+          this.module = response;
+        }
+
+        if (body.action === 'create') {
+          this.module.result.push(response.result);
+        }
+
+        if (body.action === 'edit') {
+          this.module.result = this.module.result.map((item) => {
+            if (item.id === response.result.id) {
+              return response.result;
+            }
+
+            return item;
+          });
+        }
+
+        if (body.action === 'delete') {
+          this.module.result = this.module.result.filter((item) => item.id !== body.instructions.item_id);
+        }
       });
     }
   }
