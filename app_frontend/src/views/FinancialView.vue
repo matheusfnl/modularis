@@ -14,17 +14,18 @@
   import FinantialModal from '../components/finantial/FinantialModal.vue';
 
   import SectionHeader from '../components/SectionHeader.vue';
-import { useTenantStore, useTenantUserStore } from '../store';
+  import { useTenantStore, useTenantUserStore, useModuleStore } from '../store';
 
   const tenantUserStore = useTenantUserStore();
   const tenantStore = useTenantStore();
+  const moduleStore = useModuleStore();
 
-    // Create
-    const create_modal_visible = ref(false);
-    const handleCreate = (body) => {
-      createModuleItem(body);
-      create_modal_visible.value = false;
-    }
+  // Create
+  const create_modal_visible = ref(false);
+  const handleCreate = (body) => {
+    createModuleItem(body);
+    create_modal_visible.value = false;
+  }
 
   const {
     fetch_request_pending,
@@ -36,21 +37,36 @@ import { useTenantStore, useTenantUserStore } from '../store';
     deleteModuleItem,
   } = useModuleLoader();
 
-  const products = ref([
-    { code: 'P001', work: 'Projeto A', description: 'Descrição do Projeto A', status: 'Concluído', taxes: '10%', balance: '$1000', deposit: '$500' },
-    { code: 'P002', work: 'Projeto B', description: 'Descrição do Projeto B', status: 'Em andamento', taxes: '15%', balance: '$2000', deposit: '$1000' },
-    { code: 'P003', work: 'Projeto C', description: 'Descrição do Projeto C', status: 'Pendente', taxes: '20%', balance: '$3000', deposit: '$1500' },
-    { code: 'P004', work: 'Projeto D', description: 'Descrição do Projeto D', status: 'Concluído', taxes: '5%', balance: '$4000', deposit: '$2000' },
-    { code: 'P005', work: 'Projeto E', description: 'Descrição do Projeto E', status: 'Em andamento', taxes: '12%', balance: '$5000', deposit: '$2500' }
-  ]);
-
+  const products = ref([]);
   const filters = ref({ global: { value: '' } });
+  const tenant_user_request_pending = ref(false);
 
   const getRows = computed(() => products.value.length)
-  const selectedProducts = ref([]);
+
+  const hasUser = (finance) => !! finance.user;
+  const getUser = (finance) => {
+    console.log(finance)
+
+    if (hasUser(finance)) {
+      return finance.user.name;
+    }
+
+    return 'Sem usuário';
+  }
 
   onMounted(async () => {
-    tenantUserStore.fetchUsers({ tenant_id: tenantStore.tenant.id });
+    tenant_user_request_pending.value = true;
+    await tenantUserStore.fetchUsers({ tenant_id: tenantStore.tenant.id });
+    tenant_user_request_pending.value = false;
+
+    products.value = moduleStore.module.result.map((product, index) => ({
+      index: index + 1,
+      id: product.id,
+      amount: product.amount,
+      description: product.description,
+      type: product.type,
+      user: tenantUserStore.tenant_users.find(tenant_user => tenant_user.user.id === product.user_id)?.user || null,
+    }))
   });
 </script>
 
@@ -67,8 +83,6 @@ import { useTenantStore, useTenantUserStore } from '../store';
     :totalRecords="products.length"
     tableStyle="min-width: 50rem"
     class="custom-table"
-    :selection="selectedProducts"
-    @selection-change="selectedProducts = $event.value"
     dataKey="code"
   >
     <template #header>
@@ -88,13 +102,24 @@ import { useTenantStore, useTenantUserStore } from '../store';
       </div>
     </template>
 
-    <Column field="code" header="#"></Column>
-    <Column field="work" header="Trabalho"></Column>
-    <Column field="description" header="Descrição"></Column>
-    <Column field="status" header="Status"></Column>
-    <Column field="taxes" header="Taxas"></Column>
-    <Column field="balance" header="Balanço"></Column>
-    <Column field="deposit" header="Deposito"></Column>
+    <Column field="index" header="#" />
+    <Column field="description" header="Descrição" />
+    <Column header="Valor">
+      <template #body="slotProps">
+        ${{ slotProps.data.amount }}
+      </template>
+    </Column>
+
+    <Column field="status" header="Status" />
+    <Column field="type" header="Tipo" />
+    <Column header="Usuário">
+      <template #body="slotProps">
+        <span :class="{ 'userless' : ! hasUser(slotProps.data) }">
+          {{ getUser(slotProps.data) }}
+        </span>
+      </template>
+    </Column>
+
     <Column>
       <template #body="slotProps">
         <div class="actions-container">
@@ -161,4 +186,6 @@ import { useTenantStore, useTenantUserStore } from '../store';
     gap: 10px;
     justify-content: flex-end;
   }
+
+  .userless { color: var(--text-4) }
 </style>

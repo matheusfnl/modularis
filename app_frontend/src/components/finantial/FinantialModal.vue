@@ -20,7 +20,7 @@
 
   const amount = ref('');
   const description = ref('');
-  const user = ref(null);
+  const user = ref({});
 
   const handleSalary = (amount) => {
     if (!amount) return "0.00";
@@ -36,7 +36,7 @@
     const body = {
       amount: handleSalary(amount.value),
       description: description.value,
-      user_id: user.id,
+      user_id: user.value.user?.id,
     };
 
     emit('create', body);
