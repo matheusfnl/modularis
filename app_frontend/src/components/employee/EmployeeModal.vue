@@ -27,7 +27,7 @@
   const email = ref('');
   const occupation = ref('');
   const salary = ref(0);
-  const team = ref(null);
+  const team = ref({});
   const registry = ref(uuid.v4());
   const bank_name = ref('');
   const account = ref('');
