@@ -35,8 +35,6 @@
         if (error.response.status === 422) {
           const message = error.response.data.message || 'Erro de validação'
           toast.add({ severity: 'error', summary: 'Erro!', detail: message, life: 3000 });
-        } else {
-          toast.add({ severity: 'error', summary: 'Erro!', detail: 'Ocorreu um erro inesperado', life: 3000 });
         }
       }
 

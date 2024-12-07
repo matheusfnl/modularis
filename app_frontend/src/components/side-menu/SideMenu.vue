@@ -1,6 +1,7 @@
 <script setup>
   import { ref, onMounted, computed } from 'vue';
   import { useRouter } from 'vue-router';
+  import { useToast } from "primevue/usetoast";
 
   import TieredMenu from 'primevue/tieredmenu';
   import Dialog from 'primevue/dialog';
@@ -22,6 +23,7 @@
   const tenantStore = useTenantStore();
   const moduleStore = useModuleStore();
   const flowStore = useFlowStore();
+  const toast = useToast();
 
   // tenant
 
@@ -151,6 +153,8 @@
       tenant_id: tenantStore.tenant.id,
       module: selected_service.value,
     });
+
+    toast.add({ severity: 'success', summary: 'Sucesso!', detail: 'Serviço contratado com sucesso', life: 3000 });
 
     closeServiceModal();
     service_request_pending.value = false;
