@@ -1,5 +1,6 @@
 <script setup>
   import { ref, computed, onMounted } from 'vue';
+  import { useRouter } from 'vue-router';
 
   import DataTable from 'primevue/datatable';
   import Column from 'primevue/column';
@@ -19,6 +20,7 @@
 
   import { STATUS, TYPES } from '..//enums/financial';
 
+  const router = useRouter();
   const tenantUserStore = useTenantUserStore();
   const tenantStore = useTenantStore();
   const moduleStore = useModuleStore();
@@ -35,6 +37,8 @@
     processing: 'Processando',
     waiting_payment: 'Aguardando pagamento',
   }
+
+  const getFinantialModule = computed(() => moduleStore.modules.find(module => module.name === 'finantial'));
 
   // Create
   const create_modal_visible = ref(false);
@@ -162,6 +166,10 @@
   };
 
   onMounted(async () => {
+    if (! getFinantialModule.value?.id) {
+      return router.push('/dashboard');
+    }
+
     tenant_user_request_pending.value = true;
     await tenantUserStore.fetchUsers({ tenant_id: tenantStore.tenant.id });
     tenant_user_request_pending.value = false;

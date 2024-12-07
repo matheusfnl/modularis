@@ -120,8 +120,6 @@ import Dialog from 'primevue/dialog';
       body,
     });
 
-    console.log(body.members[0].email);
-
     users.value.unshift(mapUser(tenantUserStore.tenant_users[0], body.members[0].email));
     show_add_user_modal.value = false;
     add_user_request_pending.value = false;
@@ -134,9 +132,6 @@ import Dialog from 'primevue/dialog';
 
   const mapUser = (user, email) => {
     const selected_user = user.user || tenantUserStore.tenant_users.find(tenant_user => tenant_user.user_id === user.user_id);
-
-    console.log(selected_user);
-
     const mapped_user = {
       id: user.id,
       name: selected_user.name || email,

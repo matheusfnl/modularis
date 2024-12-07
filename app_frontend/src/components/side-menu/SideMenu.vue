@@ -154,6 +154,7 @@
 
     closeServiceModal();
     service_request_pending.value = false;
+    selected_service.value = '';
   };
 
   onMounted(() => {

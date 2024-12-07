@@ -23,7 +23,9 @@
     axios.interceptors.response.use(
     response => response,
     error => {
-      if (error.response && error.response.status === 403) {
+      console.log(route);
+
+      if (error.response && error.response.status === 403 && route.fullPath !== '/dashboard') {
         router.push('/unauthorized');
       }
 

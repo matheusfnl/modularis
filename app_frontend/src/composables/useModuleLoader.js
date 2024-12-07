@@ -16,18 +16,20 @@ export function useModuleLoader() {
   const getModule = computed(() => moduleStore.modules.find((module) => module.name === getModuleName.value));
 
   const fetchModule = async () => {
-    fetch_request_pending.value = true;
-    await moduleStore.executeModule({
-      tenant_id: tenantStore.tenant.id,
-      module: getModule.value.id,
-      body: {
-        service: getService.value,
-        action: 'index',
-        instructions: {},
-      },
-    });
+    if (getModule.value?.id) {
+      fetch_request_pending.value = true;
+      await moduleStore.executeModule({
+        tenant_id: tenantStore.tenant.id,
+        module: getModule.value.id,
+        body: {
+          service: getService.value,
+          action: 'index',
+          instructions: {},
+        },
+      });
 
-    fetch_request_pending.value = false;
+      fetch_request_pending.value = false;
+    }
   };
 
   const createModuleItem = async (body) => {

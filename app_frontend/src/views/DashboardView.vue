@@ -1,7 +1,9 @@
 <script setup>
   import { computed, onMounted, ref } from 'vue';
+  import { useRouter } from 'vue-router';
 
   import Button from 'primevue/button';
+  import Dialog from 'primevue/dialog';
 
   import SectionHeader from '../components/SectionHeader.vue';
   import AppCard from '../components/AppCard.vue'
@@ -9,12 +11,15 @@
   import DashboardEmployeeItem from '../components/employee/DashboardEmployeeItem.vue';
   import DashboardTeamItem from '../components/teams/DashboardTeamItem.vue';
   import DashboardFinancialItem from '../components/finantial/DashboardFinancialItem.vue';
+  import ServiceModal from '../components/side-menu/ServiceModal.vue';
 
   import {
     useUserStore,
     useModuleStore,
     useTenantStore,
   } from '../store';
+
+  const router = useRouter();
 
   // User
 
@@ -27,6 +32,10 @@
 
   const moduleStore = useModuleStore();
   const request_pending = ref(true);
+  const service_request_pending = ref(false);
+  const selected_service = ref('');
+  const selected_module = ref('');
+  const service_modal_visible = ref(false);
 
   const getEmployeesModule = computed(() => moduleStore.modules.find(module => module.name === 'employees') || []);
   const getFinantialModule = computed(() => moduleStore.modules.find(module => module.name === 'finantial') || []);
@@ -35,13 +44,35 @@
   const getTeams = computed(() => moduleStore.teams.slice(0, 4));
   const getFinancials = computed(() => moduleStore.financial.slice(0, 4));
 
-  const hasEmployeeModule = computed(() => !! getEmployeesModule.value);
-  const hasTeamModule = computed(() => !! moduleStore.modules.find(module => module.name === 'team'));
+  const hasEmployeeModule = computed(() => !! getEmployeesModule.value?.id);
+  const hasFinancialModule = computed(() => !! getFinantialModule.value?.id);
+
+  const viewEmployees = () => router.push('/employee');
+  const viewTeams = () => router.push('/team');
+  const viewFinancials = () => router.push('/finantial');
+
+  const closeServiceModal = () => service_modal_visible.value = false;
+  const contractService = async () => {
+    service_request_pending.value = true;
+    await moduleStore.contractModule({
+      tenant_id: tenantStore.tenant.id,
+      module: selected_service.value,
+    });
+
+    closeServiceModal();
+    service_request_pending.value = false;
+    selected_service.value = '';
+    router.push(`/${selected_module.value}`);
+  };
+
+  const openContract = (service, module) => {
+    selected_service.value = service;
+    selected_module.value = module;
+    service_modal_visible.value = true;
+  };
 
   onMounted(async () => {
     request_pending.value = true;
-
-    console.log('chegou aqui??')
 
     await Promise.allSettled([
       moduleStore.fetchEmployees({
@@ -84,13 +115,13 @@
         <div class="empty-container" v-else>
           Sua organização não possui funcionários
 
-          <Button v-if="hasEmployeeModule" size="small">Ver</Button>
-          <Button v-else size="small">Contratar</Button>
+          <Button v-if="hasEmployeeModule" size="small" @click="viewEmployees">Ver</Button>
+          <Button v-else size="small" @click="openContract('employees', 'employee')">Contratar</Button>
         </div>
       </div>
 
-      <div class="see-all-content">
-        <Button>Ver todos</Button>
+      <div class="see-all-content" v-if="getEmployees.length">
+        <Button @click="viewEmployees">Ver todos</Button>
       </div>
     </AppCard>
 
@@ -112,13 +143,13 @@
         <div class="empty-container" v-else>
           Sua organização não possui times
 
-          <Button v-if="hasEmployeeModule" size="small">Ver</Button>
-          <Button v-else size="small">Contratar</Button>
+          <Button v-if="hasEmployeeModule" size="small" @click="viewTeams">Ver</Button>
+          <Button v-else size="small" @click="openContract('employees', 'team')">Contratar</Button>
         </div>
       </div>
 
-      <div class="see-all-content">
-        <Button>Ver todos</Button>
+      <div class="see-all-content" v-if="getTeams.length">
+        <Button @click="viewTeams">Ver todos</Button>
       </div>
     </AppCard>
 
@@ -140,16 +171,25 @@
         <div class="empty-container" v-else>
           Sua organização não possui registros
 
-          <Button v-if="hasTeamModule" size="small">Ver</Button>
-          <Button v-else size="small">Contratar</Button>
+          <Button v-if="hasFinancialModule" size="small" @click="viewFinancials">Ver</Button>
+          <Button v-else size="small" @click="openContract('finantial', 'finantial')">Contratar</Button>
         </div>
       </div>
 
-      <div class="see-all-content">
-        <Button>Ver todos</Button>
+      <div class="see-all-content" v-if="getFinancials.length">
+        <Button @click="viewFinancials">Ver todos</Button>
       </div>
     </AppCard>
   </div>
+
+  <Dialog v-model:visible="service_modal_visible" modal header="Contratar serviço" :style="{ width: '28rem' }">
+    <ServiceModal
+      :request_pending="service_request_pending"
+      :selected_service="selected_service"
+      @cancel="closeServiceModal"
+      @contract="contractService"
+    />
+  </Dialog>
 </template>
 
 <style scoped>
@@ -202,6 +242,7 @@
     flex-direction: column;
     gap: 10px;
     width: 100%;
+    height: 100%;
     color: var(--text-4);
     align-items: center;
   }

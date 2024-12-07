@@ -1,5 +1,7 @@
 <script setup>
   import { ref, computed, onMounted } from 'vue';
+  import { useRouter } from 'vue-router';
+
   import Dialog from 'primevue/dialog';
 
   import { useModuleLoader } from '../composables/useModuleLoader';
@@ -15,6 +17,7 @@
 
   import { useModuleStore, useTenantStore } from '../store';
 
+  const router = useRouter();
   const moduleStore = useModuleStore();
   const tenantStore = useTenantStore();
 
@@ -82,10 +85,16 @@
     deleteModuleItem,
   } = useModuleLoader();
 
-  onMounted(() => moduleStore.fetchEmployees({
-    tenant_id: tenantStore.tenant.id,
-    module: getEmployeesModule.value.id,
-  }));
+  onMounted(() => {
+    if (! getEmployeesModule.value?.id) {
+      return router.push('/dashboard');
+    }
+
+    moduleStore.fetchEmployees({
+      tenant_id: tenantStore.tenant.id,
+      module: getEmployeesModule.value.id,
+    })
+  });
 </script>
 
 <template>
