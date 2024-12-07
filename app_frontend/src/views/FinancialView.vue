@@ -68,6 +68,7 @@
       description: product.description,
       type: product.type,
       status: product.status,
+      created_at: product.created_at,
       user: tenantUserStore.tenant_users.find(tenant_user => tenant_user.user.id === product.user_id)?.user || null,
     })) || [];
 
@@ -103,6 +104,17 @@
     }
 
     return 'status-waiting-payment';
+  };
+
+  const formatDate = (timestamp) => {
+    const date = new Date(timestamp * 1000);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
   };
 
   onMounted(async () => {
@@ -173,6 +185,12 @@
         <span :class="{ 'userless' : ! hasUser(slotProps.data) }">
           {{ getUser(slotProps.data) }}
         </span>
+      </template>
+    </Column>
+
+    <Column header="Criado em">
+      <template #body="slotProps">
+        {{ formatDate(slotProps.data.created_at) }}
       </template>
     </Column>
 
