@@ -11,6 +11,7 @@ import {
   useUserStore,
   useTenantStore,
   useFlowStore,
+  useModuleStore,
 } from '../store';
 
 const routes = [
@@ -31,6 +32,7 @@ router.beforeEach(async (to, from, next) => {
   const userStore = useUserStore();
   const tenantStore = useTenantStore();
   const flowStore = useFlowStore();
+  const moduleStore = useModuleStore();
   const token = localStorage.getItem('@auth');
 
   try {
@@ -44,6 +46,7 @@ router.beforeEach(async (to, from, next) => {
       if (! tenantStore.tenant) {
         const { tenant_id } = jwtDecode(token);
         actions.push(tenantStore.fetchTenant({ tenant_id }));
+        actions.push(moduleStore.fetchModules({ tenant_id }));
       }
 
       if (actions.length) {

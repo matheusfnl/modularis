@@ -10,26 +10,35 @@
 
   import MenuOption from './MenuOption.vue';
   import DashboardIcon from '../../icons/DashboardIcon.vue';
-  import TeamIcon from '../../icons/TeamIcon.vue';
   import EmployeesIcon from '../../icons/EmployeesIcon.vue';
   import PigBankIcon from '../../icons/PigBankIcon.vue';
   import ChevronIcon from '../../icons/ChevronIcon.vue';
-
   import EmptyTenant from '../../assets/empty-tenant.png';
 
-  import { useTenantStore, useFlowStore } from '../../store';
+  import { useTenantStore, useFlowStore, useModuleStore } from '../../store';
 
   const router = useRouter();
-  const route = useRoute();
   const tenantStore = useTenantStore();
+  const moduleStore = useModuleStore();
   const flowStore = useFlowStore();
+
+  // tenant
+
+  const organizationName = computed(() => tenantStore.tenant?.name);
 
   // Menu options
 
   const menu_options = ref([
     { text: 'Dashboard', slug: 'dashboard', icon: DashboardIcon },
-    { text: 'Funcionários', slug: 'employees', icon: EmployeesIcon },
-    { text: 'Times', slug: 'teams', icon: TeamIcon, fill: true },
+    {
+      text: 'Colaboradores',
+      slug: 'collaborators',
+      icon: EmployeesIcon,
+      groups: [
+        { text: 'Funcionários', slug: 'employees' },
+        { text: 'Times', slug: 'teams' },
+      ],
+    },
     { text: 'Financeiro', slug: 'financial', icon: PigBankIcon, fill: true },
   ]);
 
@@ -56,7 +65,6 @@
   ]);
 
   const openOrganizationMenu = (event) => organizationMenu.value.toggle(event);
-  const selectedOption = (option) => route.path.startsWith(`/${option.slug}`);
   const setSelectedOption = (option) => router.push(`/${option.slug}`);
 
   // Change tenant
@@ -65,6 +73,7 @@
     flowStore.setAppRequestPending(true);
     closeTenantModal();
     await tenantStore.changeTenant({ tenant });
+    await moduleStore.fetchModules({ tenant_id: tenant.id });
     flowStore.setAppRequestPending(false);
   };
 
@@ -77,6 +86,7 @@
   const createTenant = async (body) => {
     tenant_create_request_pending.value = true;
     await tenantStore.createTenant(body);
+    await moduleStore.fetchModules({ tenant_id: tenantStore.tenant.id });
     closeTenantModal();
     tenant_create_request_pending.value = false;
   }
@@ -132,9 +142,8 @@
       <MenuOption
         v-for="option in menu_options"
         :key="option.slug"
-        :selected="selectedOption(option)"
         :option="option"
-        @click="setSelectedOption(option)"
+        @select="(selected) => setSelectedOption(selected)"
       />
     </div>
 
@@ -146,7 +155,7 @@
           <TieredMenu :model="menuItems" ref="organizationMenu" id="overlay_tmenu" popup />
 
           <div class="organization-change-container" @click="openOrganizationMenu">
-            <span class="organization-name-text">Organização Legal</span>
+            <span class="organization-name-text">{{ organizationName }}</span>
             <ChevronIcon size="10" />
           </div>
 

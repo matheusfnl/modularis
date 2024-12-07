@@ -1,25 +1,37 @@
 <script setup>
-  import { computed } from 'vue';
+  import { computed, onMounted, ref } from 'vue';
   import Button from 'primevue/button';
 
   import SectionHeader from '../components/SectionHeader.vue';
   import AppCard from '../components/AppCard.vue'
   import DashboardWorkCard from '../components/dashboard/DashboardWorkCard.vue'
 
-  import { useUserStore } from '../store';
+  import {
+    useUserStore,
+    useModuleStore,
+    useTenantStore,
+  } from '../store';
 
-  const store = useUserStore();
+  // User
 
-  const getIntroduction = computed(() => `Olá, ${store.user?.name}!`);
+  const userStore = useUserStore();
+  const tenantStore = useTenantStore();
+
+  const getIntroduction = computed(() => `Olá, ${userStore.user?.name}!`);
+
+  // Modules
+
+  const moduleStore = useModuleStore();
+  const request_pending = ref(true);
+
+  onMounted(() => {
+    request_pending.value = true;
+    request_pending.value = false;
+  });
 </script>
 
 <template>
-  <SectionHeader :title="getIntroduction" description="Aqui está um resumo da sua conta">
-    <template #actions>
-      <Button label="Criar trabalho" size="small" icon="pi pi-plus"  iconPos="right" />
-      <Button icon="pi pi-ellipsis-h" size="small" variant="outlined" class="borderless" />
-    </template>
-  </SectionHeader>
+  <SectionHeader :title="getIntroduction" description="Aqui está um resumo da sua conta" />
 
   <div class="dashboard-container">
     <AppCard>

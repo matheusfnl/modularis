@@ -32,7 +32,12 @@
 </script>
 
 <template>
-  <SectionHeader title="Financeiro" />
+  <SectionHeader title="Financeiro">
+    <template #actions>
+      <Button label="Criar registro" size="small" icon="pi pi-plus"  iconPos="right" />
+      <Button icon="pi pi-ellipsis-h" size="small" variant="outlined" class="borderless" />
+    </template>
+  </SectionHeader>
 
   <DataTable
     :value="products"

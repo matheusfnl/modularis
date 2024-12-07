@@ -1,6 +1,6 @@
 export const handleRequest = async (action, error) => {
   try {
-    await action();
+    return await action();
   } catch (err) {
     console.log(err);
 
