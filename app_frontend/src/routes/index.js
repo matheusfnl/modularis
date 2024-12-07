@@ -8,6 +8,7 @@ import FinancialView from'../views/FinancialView.vue'
 import UnauthorizedView from '../views/UnauthorizedView.vue'
 import EmployeesView from '../views/EmployeesView.vue';
 import TeamsView from '../views/TeamsView.vue';
+import PermissionsView from '../views/PermissionsView.vue';
 
 import {
   useUserStore,
@@ -24,6 +25,7 @@ const routes = [
   { path: '/finantial', component: FinancialView },
   { path: '/employee', component: EmployeesView },
   { path: '/team', component: TeamsView },
+  { path: '/permissions', component: PermissionsView },
   { path: '/unauthorized', component: UnauthorizedView },
 ]
 

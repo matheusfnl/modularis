@@ -60,6 +60,7 @@
 
   const menuItems = computed(() => [
     ...tenantsMenu.value,
+    { label: 'Permissões', command: () => router.push('/permissions') },
     { label: 'Nova organização', command: () => tenant_modal_visible.value = true },
     { label: 'Editar organização', command: () => tenant_edit_modal_visible.value = true },
     { label: 'Deletar organização', command: () =>  tenant_delete_visible.value = true, disabled: getIsDefaultTenant.value},
