@@ -48,23 +48,41 @@
     create_modal_visible.value = false;
   }
 
-    // Delete
-    const delete_modal_visible = ref(false);
-    const delete_financial = ref(null);
-    const handleOpenDeleteFinancialModal = (financial) => {
-      delete_modal_visible.value = true;
-      delete_financial.value = financial;
-    }
+  // Edit
+  const edit_modal_visible = ref(false);
+  const edit_finance = ref(null);
+  const handleOpenEditTeamModal = (team) => {
+    edit_modal_visible.value = true;
+    edit_finance.value = team;
+  }
 
-    const handleCancelDelete = () => {
-      delete_modal_visible.value = false;
-      delete_financial.value = null;
-    }
+  const handleEdit = (body) => {
+    editModuleItem(body);
+    handleCancelEdit();
+  };
 
-    const handleDelete = (body) => {
-      deleteModuleItem(body);
-      handleCancelDelete();
-    }
+  const handleCancelEdit = () => {
+    edit_modal_visible.value = false;
+    edit_finance.value = null;
+  }
+
+  // Delete
+  const delete_modal_visible = ref(false);
+  const delete_finance = ref(null);
+  const handleOpenDeleteFinancialModal = (financial) => {
+    delete_modal_visible.value = true;
+    delete_finance.value = financial;
+  }
+
+  const handleCancelDelete = () => {
+    delete_modal_visible.value = false;
+    delete_finance.value = null;
+  }
+
+  const handleDelete = (body) => {
+    deleteModuleItem(body);
+    handleCancelDelete();
+  }
 
   const {
     fetch_request_pending,
@@ -216,7 +234,7 @@
     <Column>
       <template #body="slotProps">
         <div class="actions-container">
-          <Button size="small" icon="pi pi-pencil" />
+          <Button size="small" icon="pi pi-pencil" @click="handleOpenEditTeamModal(slotProps.data)" />
           <Button size="small" icon="pi pi-trash" class="p-button-danger" @click="handleOpenDeleteFinancialModal(slotProps.data)" />
         </div>
       </template>
@@ -231,10 +249,19 @@
     />
   </Dialog>
 
+  <Dialog v-model:visible="edit_modal_visible" modal header="Editar registro" :style="{ width: '28rem' }">
+    <FinantialModal
+      :request_pending="edit_request_pending"
+      :edit_finance="edit_finance"
+      @cancel="edit_modal_visible = false"
+      @create="handleEdit"
+    />
+  </Dialog>
+
   <Dialog v-model:visible="delete_modal_visible" modal header="Apagar registro" :style="{ width: '28rem' }">
     <DeleteFinancialModal
       :request_pending="delete_request_pending"
-      :delete_financial="delete_financial"
+      :delete_finance="delete_finance"
       @cancel="handleCancelDelete"
       @delete="handleDelete"
     />

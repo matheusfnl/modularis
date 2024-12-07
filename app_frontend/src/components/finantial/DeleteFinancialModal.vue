@@ -5,15 +5,15 @@
 
   const emit = defineEmits(['close', 'delete']);
   const props = defineProps({
-    delete_financial: {
+    delete_finance: {
       type: Object,
       required: true,
     },
   });
 
   const getBody = computed(() => ({
-    finance_id: props.delete_financial.id,
-    item_id: props.delete_financial.id,
+    finance_id: props.delete_finance.id,
+    item_id: props.delete_finance.id,
   }))
 </script>
 

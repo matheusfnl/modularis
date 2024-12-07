@@ -33,8 +33,14 @@
     waiting_payment: 'Aguardando pagamento',
   }
 
+  const default_option = { user: { name: 'Selecione uma opção', id: null } };
+
   const tenantUserStore = useTenantUserStore();
-  const getTenantUser = computed(() => tenantUserStore.tenant_users);
+  const getTenantUser = computed(() => [
+    default_option,
+    ...tenantUserStore.tenant_users,
+  ]);
+
   const getTypes = computed(() => Object.values(TYPES).map(type => ({
     value: type,
     label: types_translations[type],
@@ -51,6 +57,10 @@
       type: Boolean,
       required: true,
     },
+    edit_finance: {
+      type: Object,
+      default: null,
+    },
   });
 
   const amount = ref('');
@@ -58,6 +68,8 @@
   const user = ref({});
   const status = ref('');
   const type = ref('');
+
+  const getActionLabel = computed(() => props.edit_finance ? 'Editar' : 'Criar');
 
   const handleSalary = (amount) => {
     if (!amount) return "0.00";
@@ -69,7 +81,24 @@
     return formatted;
   };
 
+  const handleEdit = () => {
+    const body = {
+      finance_id: props.edit_finance.id,
+      ...(amount.value !== props.edit_finance.amount && { amount: handleSalary(amount.value) }),
+      ...(description.value !== props.edit_finance.description && { description: description.value }),
+      ...(status.value && status.value.value !== props.edit_finance.status && { status: status.value.value }),
+      ...(type.value && type.value.value !== props.edit_finance.type && { type: type.value.value }),
+      ...(user.value && user.value.user.id !== props.edit_finance.user.id && { user_id: user.value.user.id }),
+    }
+
+    emit('create', body);
+  };
+
   const handleCreate = () => {
+    if (props.edit_finance) {
+      return handleEdit();
+    }
+
     const body = {
       amount: handleSalary(amount.value),
       description: description.value,
@@ -82,6 +111,23 @@
   };
 
   onMounted(() => {
+    user.value = default_option;
+
+    if (props.edit_finance) {
+      amount.value = props.edit_finance.amount;
+      description.value = props.edit_finance.description;
+      status.value = getStatuses.value.find(status => status.value === props.edit_finance.status);
+      type.value = getTypes.value.find(type => type.value === props.edit_finance.type);
+
+      const tenant_user = getTenantUser.value.find(user => user.user.id === props.edit_finance.user?.id);
+
+      if (tenant_user?.id) {
+        user.value = tenant_user;
+      }
+
+      return;
+    }
+
     status.value = getStatuses.value.find(status => status.value === 'waiting_payment');
     type.value = getTypes.value.find(type => type.value === 'adjust');
   })
@@ -117,7 +163,7 @@
 
   <div class="actions-container">
     <Button :disabled="request_pending" type="button" label="Cancelar" severity="secondary" @click="emit('cancel')"></Button>
-    <Button :disabled="request_pending" type="button" label="Criar" @click="handleCreate"></Button>
+    <Button :disabled="request_pending" type="button" :label="getActionLabel" @click="handleCreate"></Button>
   </div>
 </template>
 
