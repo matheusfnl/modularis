@@ -80,6 +80,7 @@
       ...(bank_name.value !== props.edit_employee.bank_account.bank_name && { bank_name: bank_name.value }),
       ...(account.value !== props.edit_employee.bank_account.account && { account: account.value }),
       ...(bank_code.value !== props.edit_employee.bank_account.bank_code && { bank_code: bank_code.value }),
+      ...(team.value.id !== props.edit_employee.team_id && { team_id: team.value.id }),
     }
 
     emit('create', body);
@@ -94,6 +95,7 @@
       bank_name.value = props.edit_employee.bank_account.bank_name;
       account.value = props.edit_employee.bank_account.account;
       bank_code.value = props.edit_employee.bank_account.bank_code;
+      team.value = getTeams.value.find(team => team.id === props.edit_employee.team_id);
     }
   })
 </script>
@@ -120,7 +122,7 @@
       <InputText v-model="salary" size="small" id="salary" />
     </div>
 
-    <div class="input-container" v-if="! props.edit_employee">
+    <div class="input-container">
       <label for="team">Time</label>
       <Select v-model="team" size="small" :options="getTeams" optionLabel="name" />
     </div>
