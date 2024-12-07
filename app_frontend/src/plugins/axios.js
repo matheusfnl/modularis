@@ -1,7 +1,5 @@
 import axios from "axios";
 
-import route from '../routes';
-
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 axios.defaults.headers.common['Accept'] = 'application/json';
 axios.defaults.baseURL = import.meta.env.VITE_API_URL;
@@ -17,15 +15,4 @@ axios.interceptors.request.use(
     return config;
   },
   error => Promise.reject(error)
-);
-
-axios.interceptors.response.use(
-  response => response,
-  error => {
-    if (error.response && error.response.status === 403) {
-      router.push('/unauthorized');
-    }
-
-    return Promise.reject(error);
-  }
 );

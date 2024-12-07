@@ -1,6 +1,7 @@
 <script setup>
-  import { ref, watchEffect } from 'vue';
-  import { useRoute } from 'vue-router';
+  import { onMounted, ref, watchEffect } from 'vue';
+  import { useRoute, useRouter } from 'vue-router';
+  import axios from 'axios';
 
   import AppLogo from './assets/AppLogo.vue'
 
@@ -12,10 +13,24 @@
 
   const auth_layout = ref(false);
   const route = useRoute();
+  const router = useRouter();
 
   const store = useFlowStore();
 
   watchEffect(() => auth_layout.value = route.meta.auth || false);
+
+  onMounted(() => {
+    axios.interceptors.response.use(
+    response => response,
+    error => {
+      if (error.response && error.response.status === 403) {
+        router.push('/unauthorized');
+      }
+
+      return Promise.reject(error);
+    }
+  );
+  })
 </script>
 
 <template>

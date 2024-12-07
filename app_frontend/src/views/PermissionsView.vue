@@ -141,7 +141,7 @@ import Dialog from 'primevue/dialog';
   const mapUser = (user) => {
     const mapped_user = {
       id: user.id,
-      name: user.id,
+      name: user.user_id,
       finantial: [],
       finantial_role: moduleOptions.value[0],
       employee: [],
