@@ -141,24 +141,28 @@ import Dialog from 'primevue/dialog';
   const mapUser = (user) => {
     const mapped_user = {
       id: user.id,
-      name: user.user_id,
+      name: user.user.name,
       finantial: [],
       finantial_role: moduleOptions.value[0],
       employee: [],
       employee_role: moduleOptions.value[0],
       role: tenantOptions.value.find(option => option.slug === user.role),
       role_slug: user.role,
-      user_id: user.user_id,
+      user_id: user.user.id,
     }
 
-    if (finantial_users.value && finantial_users.value.find(finantial_user => finantial_user.user_id === user.user_id)) {
+    const finantial_user = finantial_users.value.find(finantial_user => finantial_user.user_id === user.user.id);
+
+    if (finantial_users.value && finantial_user) {
       mapped_user.finantial = [true];
-      mapped_user.finantial_role = moduleOptions.value.find(option => option.slug === finantial_users.value.find(finantial_user => finantial_user.user_id === user.user_id).role);
+      mapped_user.finantial_role = moduleOptions.value.find(option => option.slug === finantial_user.role);
     }
 
-    if (employees_users.value && employees_users.value.find(employee_user => employee_user.user_id === user.user_id)) {
+    const employee_user = employees_users.value.find(employee_user => employee_user.user_id === user.user.id);
+
+    if (employees_users.value && employee_user) {
       mapped_user.employee = [true];
-      mapped_user.employee_role = moduleOptions.value.find(option => option.slug === employees_users.value.find(employee_user => employee_user.user_id === user.user_id).role);
+      mapped_user.employee_role = moduleOptions.value.find(option => option.slug === employee_user.role);
     }
 
     return mapped_user;

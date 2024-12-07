@@ -1,20 +1,39 @@
 <script setup>
-  import { ref, computed } from 'vue';
+  import { ref, computed, onMounted } from 'vue';
+
   import DataTable from 'primevue/datatable';
   import Column from 'primevue/column';
-
   import IconField from 'primevue/iconfield';
   import InputIcon from 'primevue/inputicon';
   import Button from 'primevue/button';
   import InputText from 'primevue/inputtext';
+  import Dialog from 'primevue/dialog';
 
   import { useModuleLoader } from '../composables/useModuleLoader';
 
+  import FinantialModal from '../components/finantial/FinantialModal.vue';
+
   import SectionHeader from '../components/SectionHeader.vue';
+import { useTenantStore, useTenantUserStore } from '../store';
+
+  const tenantUserStore = useTenantUserStore();
+  const tenantStore = useTenantStore();
+
+    // Create
+    const create_modal_visible = ref(false);
+    const handleCreate = (body) => {
+      createModuleItem(body);
+      create_modal_visible.value = false;
+    }
 
   const {
-    request_pending,
-    getModule,
+    fetch_request_pending,
+    create_request_pending,
+    edit_request_pending,
+    delete_request_pending,
+    createModuleItem,
+    editModuleItem,
+    deleteModuleItem,
   } = useModuleLoader();
 
   const products = ref([
@@ -25,40 +44,29 @@
     { code: 'P005', work: 'Projeto E', description: 'Descrição do Projeto E', status: 'Em andamento', taxes: '12%', balance: '$5000', deposit: '$2500' }
   ]);
 
-  const filters = ref({
-    global: { value: '' }
-  });
+  const filters = ref({ global: { value: '' } });
 
   const getRows = computed(() => products.value.length)
-  const first = ref(0);
   const selectedProducts = ref([]);
 
-  const clearFilter = () => {
-    filters.value['global'].value = '';
-  };
+  onMounted(async () => {
+    tenantUserStore.fetchUsers({ tenant_id: tenantStore.tenant.id });
+  });
 </script>
 
 <template>
   <SectionHeader title="Financeiro">
     <template #actions>
-      <Button label="Criar registro" size="small" icon="pi pi-plus"  iconPos="right" />
-      <Button icon="pi pi-ellipsis-h" size="small" variant="outlined" class="borderless" />
+      <Button label="Criar registro" size="small" icon="pi pi-plus"  iconPos="right" @click="create_modal_visible = true" />
     </template>
   </SectionHeader>
 
   <DataTable
     :value="products"
     :rows="getRows"
-    :first="first"
     :totalRecords="products.length"
     tableStyle="min-width: 50rem"
     class="custom-table"
-    :paginator="true"
-    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-    :rowsPerPageOptions="[5, 10, 25]"
-    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} produtos"
-    @update:page="first = $event.first"
-    @update:rows="rows = $event.rows"
     :selection="selectedProducts"
     @selection-change="selectedProducts = $event.value"
     dataKey="code"
@@ -66,24 +74,20 @@
     <template #header>
       <div class="table-header">
         <div class="left-actions">
-          <Button type="button" icon="pi pi-filter" @click="clearFilter" />
           <IconField>
               <InputIcon><i class="pi pi-search" /></InputIcon>
               <InputText v-model="filters['global'].value" placeholder="Keyword Search" />
           </IconField>
         </div>
-
-        <Button type="button" icon="pi pi-plus" label="Adicionar Entrada" />
       </div>
     </template>
 
     <template #empty>
       <div class="empty-table">
-        No customers found
+        Nenhum registro encontrado.
       </div>
     </template>
 
-    <Column selectionMode="multiple" headerStyle="width: 3em" />
     <Column field="code" header="#"></Column>
     <Column field="work" header="Trabalho"></Column>
     <Column field="description" header="Descrição"></Column>
@@ -91,7 +95,23 @@
     <Column field="taxes" header="Taxas"></Column>
     <Column field="balance" header="Balanço"></Column>
     <Column field="deposit" header="Deposito"></Column>
+    <Column>
+      <template #body="slotProps">
+        <div class="actions-container">
+          <Button size="small" icon="pi pi-pencil" />
+          <Button size="small" icon="pi pi-trash" class="p-button-danger" />
+        </div>
+      </template>
+    </Column>
   </DataTable>
+
+  <Dialog v-model:visible="create_modal_visible" modal header="Criar registro" :style="{ width: '28rem' }">
+    <FinantialModal
+      :request_pending="create_request_pending"
+      @cancel="create_modal_visible = false"
+      @create="handleCreate"
+    />
+  </Dialog>
 </template>
 
 <style scoped>
@@ -134,5 +154,11 @@
   .left-actions {
     display: flex;
     gap: 10px;
+  }
+
+  .actions-container {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
   }
 </style>

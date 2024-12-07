@@ -12,7 +12,6 @@
 
   import Button from 'primevue/button';
 
-
   import { useModuleStore, useTenantStore } from '../store';
 
   const moduleStore = useModuleStore();
