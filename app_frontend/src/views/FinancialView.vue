@@ -12,6 +12,7 @@
   import { useModuleLoader } from '../composables/useModuleLoader';
 
   import FinantialModal from '../components/finantial/FinantialModal.vue';
+  import DeleteFinancialModal from '../components/finantial/DeleteFinancialModal.vue';
 
   import SectionHeader from '../components/SectionHeader.vue';
   import { useTenantStore, useTenantUserStore, useModuleStore } from '../store';
@@ -47,6 +48,24 @@
     create_modal_visible.value = false;
   }
 
+    // Delete
+    const delete_modal_visible = ref(false);
+    const delete_financial = ref(null);
+    const handleOpenDeleteFinancialModal = (financial) => {
+      delete_modal_visible.value = true;
+      delete_financial.value = financial;
+    }
+
+    const handleCancelDelete = () => {
+      delete_modal_visible.value = false;
+      delete_financial.value = null;
+    }
+
+    const handleDelete = (body) => {
+      deleteModuleItem(body);
+      handleCancelDelete();
+    }
+
   const {
     fetch_request_pending,
     create_request_pending,
@@ -61,24 +80,24 @@
   const tenant_user_request_pending = ref(false);
 
   const getFinancialItems = computed(() => {
-    let products = moduleStore.module.result?.map((product, index) => ({
+    let financials = moduleStore.module.result?.map((financial, index) => ({
       index: index + 1,
-      id: product.id,
-      amount: product.amount,
-      description: product.description,
-      type: product.type,
-      status: product.status,
-      created_at: product.created_at,
-      user: tenantUserStore.tenant_users.find(tenant_user => tenant_user.user.id === product.user_id)?.user || null,
+      id: financial.id,
+      amount: financial.amount,
+      description: financial.description,
+      type: financial.type,
+      status: financial.status,
+      created_at: financial.created_at,
+      user: tenantUserStore.tenant_users.find(tenant_user => tenant_user.user.id === financial.user_id)?.user || null,
     })) || [];
 
     if (filters.value) {
-      products = products.filter(product => {
-        return product.description.toLowerCase().includes(filters.value.toLowerCase());
+      financials = financials.filter(financial => {
+        return financial.description.toLowerCase().includes(filters.value.toLowerCase());
       });
     }
 
-    return products;
+    return financials;
   })
 
   const hasUser = (finance) => !! finance.user;
@@ -198,7 +217,7 @@
       <template #body="slotProps">
         <div class="actions-container">
           <Button size="small" icon="pi pi-pencil" />
-          <Button size="small" icon="pi pi-trash" class="p-button-danger" />
+          <Button size="small" icon="pi pi-trash" class="p-button-danger" @click="handleOpenDeleteFinancialModal(slotProps.data)" />
         </div>
       </template>
     </Column>
@@ -209,6 +228,15 @@
       :request_pending="create_request_pending"
       @cancel="create_modal_visible = false"
       @create="handleCreate"
+    />
+  </Dialog>
+
+  <Dialog v-model:visible="delete_modal_visible" modal header="Apagar registro" :style="{ width: '28rem' }">
+    <DeleteFinancialModal
+      :request_pending="delete_request_pending"
+      :delete_financial="delete_financial"
+      @cancel="handleCancelDelete"
+      @delete="handleDelete"
     />
   </Dialog>
 </template>
