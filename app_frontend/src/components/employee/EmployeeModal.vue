@@ -6,6 +6,8 @@
   import InputText from 'primevue/inputtext';
   import Select from 'primevue/select';
 
+  import { useModuleStore } from '../../store';
+
   const emit = defineEmits(['cancel', 'create']);
   const props = defineProps({
     request_pending: {
@@ -18,11 +20,14 @@
     },
   });
 
+  const moduleStore = useModuleStore();
+  const getTeams = computed(() => moduleStore.teams);
+
   const name = ref('');
   const email = ref('');
   const occupation = ref('');
   const salary = ref(0);
-  const team = ref('');
+  const team = ref(null);
   const registry = ref(uuid.v4());
   const bank_name = ref('');
   const account = ref('');
@@ -117,7 +122,7 @@
 
     <div class="input-container" v-if="! props.edit_employee">
       <label for="team">Time</label>
-      <Select v-model="team" size="small" :options="[]" optionLabel="team" />
+      <Select v-model="team" size="small" :options="getTeams" optionLabel="name" />
     </div>
 
     <div class="input-container">

@@ -1,5 +1,5 @@
 <script setup>
-  import { ref, computed } from 'vue';
+  import { ref, computed, onMounted } from 'vue';
   import Dialog from 'primevue/dialog';
 
   import { useModuleLoader } from '../composables/useModuleLoader';
@@ -13,11 +13,13 @@
 
   import Button from 'primevue/button';
 
-  import { useModuleStore } from '../store';
+  import { useModuleStore, useTenantStore } from '../store';
 
   const moduleStore = useModuleStore();
+  const tenantStore = useTenantStore();
 
   const getResult = computed(() => moduleStore.module.result || []);
+  const getEmployeesModule = computed(() => moduleStore.modules.find(module => module.name === 'employees'));
 
   // Create
   const create_modal_visible = ref(false);
@@ -79,6 +81,11 @@
     editModuleItem,
     deleteModuleItem,
   } = useModuleLoader();
+
+  onMounted(() => moduleStore.fetchTeams({
+    tenant_id: tenantStore.tenant.id,
+    module: getEmployeesModule.value.id,
+  }));
 </script>
 
 <template>

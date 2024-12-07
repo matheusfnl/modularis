@@ -11,6 +11,8 @@ export const useModuleStore = defineStore('module', {
   state: () => ({
     modules: [],
     module: {},
+    employees: [],
+    teams: [],
   }),
   actions: {
     async fetchModules({ tenant_id }) {
@@ -57,6 +59,24 @@ export const useModuleStore = defineStore('module', {
       await handleRequest(async () => {
         await attachUser(tenant_id, module, body);
       });
-    }
+    },
+    async fetchEmployees({ tenant_id, module, body }) {
+      const response = await executeModule(tenant_id, module, {
+        service: 'employee',
+        action: 'index',
+        instructions: {},
+      });
+
+      this.employees = response.result;
+    },
+    async fetchTeams({ tenant_id, module, body }) {
+      const response = await executeModule(tenant_id, module, {
+        service: 'team',
+        action: 'index',
+        instructions: {},
+      });
+
+      this.teams = response.result;
+    },
   }
 });
