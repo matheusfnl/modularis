@@ -8,7 +8,14 @@
   import Button from 'primevue/button';
   import InputText from 'primevue/inputtext';
 
+  import { useModuleLoader } from '../composables/useModuleLoader';
+
   import SectionHeader from '../components/SectionHeader.vue';
+
+  const {
+    request_pending,
+    getModule,
+  } = useModuleLoader();
 
   const products = ref([
     { code: 'P001', work: 'Projeto A', description: 'Descrição do Projeto A', status: 'Concluído', taxes: '10%', balance: '$1000', deposit: '$500' },

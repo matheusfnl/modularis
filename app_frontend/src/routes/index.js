@@ -6,6 +6,8 @@ import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import FinancialView from'../views/FinancialView.vue'
 import UnauthorizedView from '../views/UnauthorizedView.vue'
+import EmployeesView from '../views/EmployeesView.vue';
+import TeamsView from '../views/TeamsView.vue';
 
 import {
   useUserStore,
@@ -19,7 +21,9 @@ const routes = [
   { path: '/dashboard', component: DashboardView, },
   { path: '/login', component: LoginView, meta: { auth: true } },
   { path: '/register', component: RegisterView, meta: { auth: true } },
-  { path: '/financial', component: FinancialView },
+  { path: '/finantial', component: FinancialView },
+  { path: '/employee', component: EmployeesView },
+  { path: '/team', component: TeamsView },
   { path: '/unauthorized', component: UnauthorizedView },
 ]
 

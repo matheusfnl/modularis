@@ -25,13 +25,6 @@
     margin-bottom: 2rem;
   }
 
-  .input-container {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
-  }
-
   .actions-container {
     display: flex;
     gap: 1rem;

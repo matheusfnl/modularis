@@ -21,18 +21,20 @@
 <template>
   <template v-if="! auth_layout">
     <div class="app-container">
-      <SideMenu />
-      <div class="main-content-container">
-        <AppHeader />
-        <main class="main-containeer">
-          <RouterView />
-        </main>
-      </div>
-
       <div class="loading-app-container" v-if="store.app_request_pending">
         <AppLogo />
         <AppLoading size="36" />
       </div>
+
+      <template v-else>
+        <SideMenu />
+        <div class="main-content-container">
+          <AppHeader />
+          <main class="main-containeer">
+            <RouterView />
+          </main>
+        </div>
+      </template>
     </div>
   </template>
 

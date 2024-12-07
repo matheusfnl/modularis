@@ -18,7 +18,7 @@
     },
   });
 
-  const show_groups = ref(false);
+  const show_groups = ref(true);
   const getIconClass = computed(() => props.option.fill ? 'fill' : 'stroke');
   const hasGroupSelected = computed(() => !! props.option.groups?.find(group => getSelectedClass(group)));
   const getSelectedGroupClass = computed(() => hasGroupSelected.value ? 'group-selected' : '');
@@ -27,7 +27,7 @@
   const handleClickGroupItem = (option) => {
     console.log(option);
 
-    emit('select', option)
+    emit('select', option, props.option)
   };
   const handleClick = () => {
     if (props.option.groups) {

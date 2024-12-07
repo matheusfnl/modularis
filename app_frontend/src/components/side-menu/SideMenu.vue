@@ -1,12 +1,13 @@
 <script setup>
   import { ref, onMounted, computed } from 'vue';
-  import { useRouter, useRoute } from 'vue-router';
+  import { useRouter } from 'vue-router';
 
   import TieredMenu from 'primevue/tieredmenu';
   import Dialog from 'primevue/dialog';
   import CreateTenantModal from './CreateTenantModal.vue';
   import DeleteTenantModal from './DeleteTenantModal.vue';
   import EditTenantModal from './EditTenantModal.vue';
+  import ServiceModal from './ServiceModal.vue';
 
   import MenuOption from './MenuOption.vue';
   import DashboardIcon from '../../icons/DashboardIcon.vue';
@@ -32,14 +33,14 @@
     { text: 'Dashboard', slug: 'dashboard', icon: DashboardIcon },
     {
       text: 'Colaboradores',
-      slug: 'collaborators',
+      slug: 'employees',
       icon: EmployeesIcon,
       groups: [
-        { text: 'Funcionários', slug: 'employees' },
-        { text: 'Times', slug: 'teams' },
+        { text: 'Funcionários', slug: 'employee' },
+        { text: 'Times', slug: 'team' },
       ],
     },
-    { text: 'Financeiro', slug: 'financial', icon: PigBankIcon, fill: true },
+    { text: 'Financeiro', slug: 'finantial', icon: PigBankIcon, fill: true },
   ]);
 
   const organizationMenu = ref(null);
@@ -65,7 +66,16 @@
   ]);
 
   const openOrganizationMenu = (event) => organizationMenu.value.toggle(event);
-  const setSelectedOption = (option) => router.push(`/${option.slug}`);
+  const setSelectedOption = (option, group) => {
+    const selected_module = group?.slug || option.slug;
+
+    if (moduleStore.modules.find(module => module.name === selected_module) || selected_module === 'dashboard') {
+      return router.push(`/${option.slug}`);
+    }
+
+    selected_service.value = selected_module;
+    service_modal_visible.value = true;
+  };
 
   // Change tenant
 
@@ -74,6 +84,7 @@
     closeTenantModal();
     await tenantStore.changeTenant({ tenant });
     await moduleStore.fetchModules({ tenant_id: tenant.id });
+    router.push('/dashboard');
     flowStore.setAppRequestPending(false);
   };
 
@@ -126,6 +137,23 @@
     closeEditTenantModal();
   }
 
+  // Module
+
+  const service_modal_visible = ref(false);
+  const service_request_pending = ref(false);
+  const selected_service = ref('');
+
+  const closeServiceModal = () => service_modal_visible.value = false;
+  const contractService = async () => {
+    service_request_pending.value = true;
+    await moduleStore.contractModule({
+      tenant_id: tenantStore.tenant.id,
+      module: selected_service.value,
+    });
+
+    closeServiceModal();
+    service_request_pending.value = false;
+  };
 
   onMounted(() => {
     tenantStore.fetchTenants();
@@ -143,7 +171,7 @@
         v-for="option in menu_options"
         :key="option.slug"
         :option="option"
-        @select="(selected) => setSelectedOption(selected)"
+        @select="(selected, group) => setSelectedOption(selected, group)"
       />
     </div>
 
@@ -188,6 +216,15 @@
         @edit="editCurrentTenant"
         :request_pending="tenant_edit_request_pending"
         :tenant="tenantStore.tenant"
+      />
+    </Dialog>
+
+    <Dialog v-model:visible="service_modal_visible" modal header="Contratar serviço" :style="{ width: '28rem' }">
+      <ServiceModal
+        :request_pending="service_request_pending"
+        :selected_service="selected_service"
+        @cancel="closeServiceModal"
+        @contract="contractService"
       />
     </Dialog>
   </aside>
