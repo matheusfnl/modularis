@@ -4,6 +4,7 @@ import fetchModules  from '../api/module/fetchModules';
 import contractModule  from '../api/module/contractModule';
 import executeModule from '../api/module/executeModule';
 import attachUser from '../api/module/attachUser';
+import detachUser from '../api/module/detachUser';
 
 import { handleRequest } from '../helpers/handleRequest';
 
@@ -58,6 +59,11 @@ export const useModuleStore = defineStore('module', {
     async attachUser({ tenant_id, module, body }) {
       await handleRequest(async () => {
         await attachUser(tenant_id, module, body);
+      });
+    },
+    async detachUser({ tenant_id, module, body }) {
+      await handleRequest(async () => {
+        await detachUser(tenant_id, module, body);
       });
     },
     async fetchEmployees({ tenant_id, module, body }) {

@@ -169,6 +169,14 @@ import Dialog from 'primevue/dialog';
   }
 
   const defineUsers = () => tenantUserStore.tenant_users.map(user => mapUser(user));
+  const updateTenantUserRole = (permission, option) => {
+    if (permission.value.slug === 'admin') {
+      option.employee = [true];
+      option.finantial = [true];
+      option.finantial_role = moduleOptions.value.find(option => option.slug === 'editor');
+      option.employee_role = moduleOptions.value.find(option => option.slug === 'editor');
+    }
+  }
 
   onMounted(async () => {
     request_pending.value = true;
@@ -210,7 +218,7 @@ import Dialog from 'primevue/dialog';
       <Column header="Permissão na organização">
         <template #body="slotProps">
           <div class="actions-container">
-            <Select v-if="! isAssignable(slotProps.data)" size="small" optionLabel="role" :options="tenantOptions" v-model="slotProps.data.role" placeholder="Selecione" class="table-select" />
+            <Select v-if="! isAssignable(slotProps.data)" size="small" optionLabel="role" :options="tenantOptions" v-model="slotProps.data.role" placeholder="Selecione" class="table-select" @change="($event) => updateTenantUserRole($event, slotProps.data)" />
             <template v-else>{{ tenantTranslations[slotProps.data.role_slug] }}</template>
 
             <div class="gap-10">
