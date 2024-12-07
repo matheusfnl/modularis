@@ -7,23 +7,12 @@
 
   import { useTenantUserStore } from '../../store';
 
-  const TYPES = {
-    adjust: 'adjust',
-    income: 'income',
-    expense: 'expense',
-  }
-
-  const STATUS = {
-    canceled: 'canceled',
-    paid: 'paid',
-    processing: 'processing',
-    waiting_payment: 'waiting_payment',
-  }
+  import { STATUS, TYPES } from '../../enums/financial';
 
   const types_translations = {
     adjust: 'Ajuste',
     income: 'Renda',
-    expense: 'Gasto',
+    expense: 'Despesa',
   }
 
   const statuses_translations = {

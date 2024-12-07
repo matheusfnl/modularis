@@ -14,6 +14,7 @@ export const useModuleStore = defineStore('module', {
     module: {},
     employees: [],
     teams: [],
+    financial: [],
   }),
   actions: {
     async fetchModules({ tenant_id }) {
@@ -66,7 +67,7 @@ export const useModuleStore = defineStore('module', {
         await detachUser(tenant_id, module, body);
       });
     },
-    async fetchEmployees({ tenant_id, module, body }) {
+    async fetchEmployees({ tenant_id, module }) {
       const response = await executeModule(tenant_id, module, {
         service: 'employee',
         action: 'index',
@@ -75,7 +76,7 @@ export const useModuleStore = defineStore('module', {
 
       this.employees = response.result;
     },
-    async fetchTeams({ tenant_id, module, body }) {
+    async fetchTeams({ tenant_id, module }) {
       const response = await executeModule(tenant_id, module, {
         service: 'team',
         action: 'index',
@@ -84,5 +85,14 @@ export const useModuleStore = defineStore('module', {
 
       this.teams = response.result;
     },
+    async fetchFinancial({ tenant_id, module }) {
+      const response = await executeModule(tenant_id, module, {
+        service: 'finantial',
+        action: 'index',
+        instructions: {},
+      });
+
+      this.financial = response.result;
+    }
   }
 });

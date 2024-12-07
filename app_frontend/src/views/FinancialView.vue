@@ -17,21 +17,16 @@
   import SectionHeader from '../components/SectionHeader.vue';
   import { useTenantStore, useTenantUserStore, useModuleStore } from '../store';
 
+  import { STATUS, TYPES } from '..//enums/financial';
+
   const tenantUserStore = useTenantUserStore();
   const tenantStore = useTenantStore();
   const moduleStore = useModuleStore();
 
-  const STATUS = {
-    canceled: 'canceled',
-    paid: 'paid',
-    processing: 'processing',
-    waiting_payment: 'waiting_payment',
-  }
-
   const types_translations = {
     adjust: 'Ajuste',
     income: 'Renda',
-    expense: 'Gasto',
+    expense: 'Despesa',
   }
 
   const statuses_translations = {
@@ -127,6 +122,18 @@
     return 'Sem usuário';
   }
 
+  const getTypeColor = (type) => {
+    if (type === TYPES.expense) {
+      return 'type-danger';
+    }
+
+    if (type === TYPES.income) {
+      return 'type-success';
+    }
+
+    return 'type-info'
+  }
+
   const getStatusColor = (status) => {
     if (status === STATUS.canceled) {
       return 'status-canceled';
@@ -213,7 +220,9 @@
 
     <Column header="Tipo">
       <template #body="slotProps">
-        {{ types_translations[slotProps.data.type] }}
+        <span :class="getTypeColor(slotProps.data.type)">
+          {{ types_translations[slotProps.data.type] }}
+        </span>
       </template>
     </Column>
 
@@ -348,4 +357,8 @@
     background-color: var(--warning-color-1);
     color: var(--warning-color-3);
   }
+
+  .type-danger { color: var(--danger-color-2); }
+  .type-success { color: var(--success-color-2); }
+  .type-info { color: var(--info-color-3); }
 </style>
