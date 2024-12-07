@@ -121,13 +121,15 @@ import Dialog from 'primevue/dialog';
   // Add user
   const show_add_user_modal = ref(false);
   const add_user_request_pending = ref(false);
-  const handleCreateUser = (body) => {
+  const handleCreateUser = async (body) => {
     add_user_request_pending.value = true;
-    tenantUserStore.attachUser({
+    await tenantUserStore.attachUser({
       tenant_id: tenantStore.tenant.id,
       body,
     });
 
+    users.value.unshift(mapUser(tenantUserStore.tenant_users[0]));
+    show_add_user_modal.value = false;
     add_user_request_pending.value = false;
   }
 
@@ -136,36 +138,39 @@ import Dialog from 'primevue/dialog';
   const finantial_users = computed(() => moduleStore.modules.find(store_module => store_module.name === 'finantial').users);
   const employees_users = computed(() => moduleStore.modules.find(store_module => store_module.name === 'employees').users);
 
+  const mapUser = (user) => {
+    const mapped_user = {
+      id: user.id,
+      name: user.id,
+      finantial: [],
+      finantial_role: moduleOptions.value[0],
+      employee: [],
+      employee_role: moduleOptions.value[0],
+      role: tenantOptions.value.find(option => option.slug === user.role),
+      role_slug: user.role,
+      user_id: user.user_id,
+    }
+
+    if (finantial_users.value.find(finantial_user => finantial_user.user_id === user.user_id)) {
+      mapped_user.finantial = [true];
+      mapped_user.finantial_role = moduleOptions.value.find(option => option.slug === finantial_users.value.find(finantial_user => finantial_user.user_id === user.user_id).role);
+    }
+
+    if (employees_users.value.find(employee_user => employee_user.user_id === user.user_id)) {
+      mapped_user.employee = [true];
+      mapped_user.employee_role = moduleOptions.value.find(option => option.slug === employees_users.value.find(employee_user => employee_user.user_id === user.user_id).role);
+    }
+
+    return mapped_user;
+  }
+
+  const defineUsers = () => tenantUserStore.tenant_users.map(user => mapUser(user));
+
   onMounted(async () => {
     request_pending.value = true;
     await tenantUserStore.fetchUsers({ tenant_id: tenantStore.tenant.id });
     request_pending.value = false;
-
-    users.value = tenantUserStore.tenant_users.map(user => {
-      const mapped_user = {
-        id: user.id,
-        name: user.id,
-        finantial: [],
-        finantial_role: moduleOptions.value[0],
-        employee: [],
-        employee_role: moduleOptions.value[0],
-        role: tenantOptions.value.find(option => option.slug === user.role),
-        role_slug: user.role,
-        user_id: user.user_id,
-      }
-
-      if (finantial_users.value.find(finantial_user => finantial_user.user_id === user.user_id)) {
-        mapped_user.finantial = [true];
-        mapped_user.finantial_role = moduleOptions.value.find(option => option.slug === finantial_users.value.find(finantial_user => finantial_user.user_id === user.user_id).role);
-      }
-
-      if (employees_users.value.find(employee_user => employee_user.user_id === user.user_id)) {
-        mapped_user.employee = [true];
-        mapped_user.employee_role = moduleOptions.value.find(option => option.slug === employees_users.value.find(employee_user => employee_user.user_id === user.user_id).role);
-      }
-
-      return mapped_user;
-    })
+    users.value = defineUsers();
   })
 </script>
 
