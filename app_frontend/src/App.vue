@@ -3,6 +3,8 @@
   import { useRoute, useRouter } from 'vue-router';
   import axios from 'axios';
 
+  import Toast from 'primevue/toast';
+
   import AppLogo from './assets/AppLogo.vue'
 
   import SideMenu from './components/side-menu/SideMenu.vue';
@@ -10,10 +12,12 @@
   import AppLoading from './components/AppLoading.vue';
 
   import { useFlowStore } from './store';
+  import { useToast } from 'primevue/usetoast';
 
   const auth_layout = ref(false);
   const route = useRoute();
   const router = useRouter();
+  const toast = useToast();
 
   const store = useFlowStore();
 
@@ -23,10 +27,17 @@
     axios.interceptors.response.use(
     response => response,
     error => {
-      console.log(route);
+      if (error.response) {
+        if (error.response.status === 403 && route.fullPath !== '/dashboard') {
+          return router.push('/unauthorized');
+        }
 
-      if (error.response && error.response.status === 403 && route.fullPath !== '/dashboard') {
-        router.push('/unauthorized');
+        if (error.response.status === 422) {
+          const message = error.response.data.message || 'Erro de validação'
+          toast.add({ severity: 'error', summary: 'Erro!', detail: message, life: 3000 });
+        } else {
+          toast.add({ severity: 'error', summary: 'Erro!', detail: 'Ocorreu um erro inesperado', life: 3000 });
+        }
       }
 
       return Promise.reject(error);
@@ -36,6 +47,8 @@
 </script>
 
 <template>
+  <Toast />
+
   <template v-if="! auth_layout">
     <div class="app-container">
       <div class="loading-app-container" v-if="store.app_request_pending">

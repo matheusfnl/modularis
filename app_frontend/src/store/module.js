@@ -1,5 +1,7 @@
 import { defineStore }  from 'pinia';
 
+import { useToast } from "primevue/usetoast";
+
 import fetchModules  from '../api/module/fetchModules';
 import contractModule  from '../api/module/contractModule';
 import executeModule from '../api/module/executeModule';
@@ -15,6 +17,7 @@ export const useModuleStore = defineStore('module', {
     employees: [],
     teams: [],
     financial: [],
+    toast: useToast(),
   }),
   actions: {
     async fetchModules({ tenant_id }) {
@@ -40,6 +43,7 @@ export const useModuleStore = defineStore('module', {
 
         if (body.action === 'create') {
           this.module.result.push(response.result);
+          this.toast.add({ severity: 'success', summary: 'Criado com sucesso!', detail: 'Seu recurso foi criado com sucesso', life: 3000 });
         }
 
         if (body.action === 'edit') {
@@ -50,10 +54,13 @@ export const useModuleStore = defineStore('module', {
 
             return item;
           });
+
+          this.toast.add({ severity: 'success', summary: 'Editado com sucesso!', detail: 'Seu recurso foi editado com sucesso', life: 3000 });
         }
 
         if (body.action === 'delete') {
           this.module.result = this.module.result.filter((item) => item.id !== body.instructions.item_id);
+          this.toast.add({ severity: 'success', summary: 'Deletado com sucesso!', detail: 'Seu recurso foi deletado com sucesso', life: 3000 });
         }
       });
     },

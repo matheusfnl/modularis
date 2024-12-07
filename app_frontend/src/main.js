@@ -3,6 +3,7 @@ import { createPinia } from 'pinia'
 import PrimeVue from 'primevue/config';
 import Aura from '@primevue/themes/aura';
 import { definePreset } from '@primevue/themes';
+import ToastService from 'primevue/toastservice';
 
 import './style.css'
 import 'primeicons/primeicons.css'
@@ -63,6 +64,7 @@ const preset = definePreset(Aura, {
 createApp(App)
   .use(router)
   .use(pinia)
+  .use(ToastService)
   .use(PrimeVue, { theme: {
     preset,
     options: { darkModeSelector: false }

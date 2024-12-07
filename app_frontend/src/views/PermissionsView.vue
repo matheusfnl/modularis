@@ -1,6 +1,7 @@
 <script setup>
-import { onMounted, ref, computed } from 'vue';
-import Dialog from 'primevue/dialog';
+  import { onMounted, ref, computed } from 'vue';
+  import Dialog from 'primevue/dialog';
+  import { useToast } from "primevue/usetoast";
 
   import SectionHeader from '../components/SectionHeader.vue';
   import AddUserModal from '../components/tenant_user/AddUserModal.vue';
@@ -27,6 +28,7 @@ import Dialog from 'primevue/dialog';
   };
 
   const users = ref([]);
+  const toast = useToast();
 
   const tenantUserStore = useTenantUserStore();
   const tenantStore = useTenantStore();
@@ -103,7 +105,9 @@ import Dialog from 'primevue/dialog';
       }));
     }
 
-    await Promise.allSettled(actions);;
+    await Promise.allSettled(actions);
+
+    toast.add({ severity: 'success', summary: 'Sucesso!', detail: 'Permissões alteradas com sucesso', life: 3000 })
 
     update_request_pending.value = update_request_pending.value.filter(user_id => user_id !== user.user_id);
   };
@@ -190,6 +194,8 @@ import Dialog from 'primevue/dialog';
       tenant_id: tenantStore.tenant.id,
       user_id: user.user_id,
     });
+
+    toast.add({ severity: 'success', summary: 'Sucesso!', detail: 'Permissão deletada com sucesso', life: 3000 })
 
     delete_request_pending.value = false;
     handleCancelDelete();
