@@ -3,6 +3,7 @@ import { defineStore }  from 'pinia';
 import fetchModules  from '../api/module/fetchModules';
 import contractModule  from '../api/module/contractModule';
 import executeModule from '../api/module/executeModule';
+import attachUser from '../api/module/attachUser';
 
 import { handleRequest } from '../helpers/handleRequest';
 
@@ -50,6 +51,11 @@ export const useModuleStore = defineStore('module', {
         if (body.action === 'delete') {
           this.module.result = this.module.result.filter((item) => item.id !== body.instructions.item_id);
         }
+      });
+    },
+    async attachUser({ tenant_id, module, body }) {
+      await handleRequest(async () => {
+        await attachUser(tenant_id, module, body);
       });
     }
   }

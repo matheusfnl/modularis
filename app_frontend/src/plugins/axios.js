@@ -1,5 +1,6 @@
 import axios from "axios";
-import { useRouter } from 'vue-router';
+
+import route from '../routes';
 
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 axios.defaults.headers.common['Accept'] = 'application/json';
@@ -21,8 +22,6 @@ axios.interceptors.request.use(
 axios.interceptors.response.use(
   response => response,
   error => {
-    const router = useRouter();
-
     if (error.response && error.response.status === 403) {
       router.push('/unauthorized');
     }

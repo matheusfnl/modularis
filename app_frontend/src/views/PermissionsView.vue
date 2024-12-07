@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import Dialog from 'primevue/dialog';
 
   import SectionHeader from '../components/SectionHeader.vue';
@@ -12,25 +12,111 @@ import Dialog from 'primevue/dialog';
   import Checkbox from 'primevue/checkbox';
   import Select from 'primevue/select';
 
-  import { useTenantStore, useTenantUserStore } from '../store';
+  import { useModuleStore, useTenantStore, useTenantUserStore } from '../store';
 
   const MODULES_ROLES = {
     viewer: 'viewer',
     editor: 'editor',
   }
 
-  const users = ref([
-    { id: 1, name: 'Usuário 1', financeiro: [], colaboradores: [], acao: '' },
-    { id: 2, name: 'Usuário 2', financeiro: [], colaboradores: [], acao: '' },
-  ]);
+  const USER_ROLES = {
+    admin: 'admin',
+    viewer: 'viewer',
+    operator: 'operator',
+  };
+
+  const users = ref([]);
 
   const tenantUserStore = useTenantUserStore();
   const tenantStore = useTenantStore();
+  const moduleStore = useModuleStore();
 
-  const options = ref([]);
-  const handleDelete = (user) => {
-    users.value = users.value.filter(u => u.id !== user.id);
+  // Module
+
+  const moduleTranslations = computed(() => ({
+    viewer: 'Visualizador',
+    editor: 'Editor',
+  }));
+
+  const moduleOptions = computed(() => Object.values(MODULES_ROLES).map(role => ({
+    role: moduleTranslations.value[role],
+    slug: role,
+  })));
+
+  // User
+
+  const tenantTranslations = computed(() => ({
+    viewer: 'Visualizador',
+    admin: 'Administrador',
+    owner: 'Dono',
+    personal: 'Pessoal',
+    operator: 'Operador',
+  }));
+
+  const tenantOptions = computed(() => Object.values(USER_ROLES).map(role => ({
+    role: tenantTranslations.value[role],
+    slug: role,
+  })))
+
+  const handleDelete = async (user) => {
+    await tenantUserStore.detachUser({
+      tenant_id: tenantStore.tenant.id,
+      user_id: user.user_id,
+    });
+
+    users.value = users.value.filter(user_value => user_value.user_id !== user.user_id);
   };
+
+  const update_request_pending = ref([]);
+  const handleSave = async (user) => {
+    update_request_pending.value.push(user.user_id);
+
+    const actions = [];
+
+    if (user.role) {
+      actions.push(tenantUserStore.updateUserRole({
+        tenant_id: tenantStore.tenant.id,
+        user_id: user.user_id,
+        body: { role: user.role.slug },
+      }));
+    }
+
+    if (user.finantial.length) {
+      const selected_module = moduleStore.modules.find(module => module.name === 'finantial');
+
+      actions.push(moduleStore.attachUser({
+        tenant_id: tenantStore.tenant.id,
+        module: selected_module.id,
+        body: {
+          members: [{
+            user_id: user.user_id,
+            role: user.finantial_role.slug
+          }]
+        }
+      }));
+    }
+
+    if (user.employee.length) {
+      const selected_module = moduleStore.modules.find(module => module.name === 'employees');
+
+      actions.push(moduleStore.attachUser({
+        tenant_id: tenantStore.tenant.id,
+        module: selected_module.id,
+        body: {
+          members: [{
+            user_id: user.user_id,
+            role: user.employee_role.slug
+          }]
+        }
+      }));
+    }
+
+    await Promise.allSettled(actions);;
+
+    update_request_pending.value = update_request_pending.value.filter(user_id => user_id !== user.user_id);
+  };
+
+  const isAssignable = (user) => ['owner', 'personal'].includes(user.role_slug);
 
   // Add user
   const show_add_user_modal = ref(false);
@@ -47,11 +133,39 @@ import Dialog from 'primevue/dialog';
 
   // Flow
   const request_pending = ref(false);
+  const finantial_users = computed(() => moduleStore.modules.find(store_module => store_module.name === 'finantial').users);
+  const employees_users = computed(() => moduleStore.modules.find(store_module => store_module.name === 'employees').users);
 
   onMounted(async () => {
     request_pending.value = true;
     await tenantUserStore.fetchUsers({ tenant_id: tenantStore.tenant.id });
     request_pending.value = false;
+
+    users.value = tenantUserStore.tenant_users.map(user => {
+      const mapped_user = {
+        id: user.id,
+        name: user.id,
+        finantial: [],
+        finantial_role: moduleOptions.value[0],
+        employee: [],
+        employee_role: moduleOptions.value[0],
+        role: tenantOptions.value.find(option => option.slug === user.role),
+        role_slug: user.role,
+        user_id: user.user_id,
+      }
+
+      if (finantial_users.value.find(finantial_user => finantial_user.user_id === user.user_id)) {
+        mapped_user.finantial = [true];
+        mapped_user.finantial_role = moduleOptions.value.find(option => option.slug === finantial_users.value.find(finantial_user => finantial_user.user_id === user.user_id).role);
+      }
+
+      if (employees_users.value.find(employee_user => employee_user.user_id === user.user_id)) {
+        mapped_user.employee = [true];
+        mapped_user.employee_role = moduleOptions.value.find(option => option.slug === employees_users.value.find(employee_user => employee_user.user_id === user.user_id).role);
+      }
+
+      return mapped_user;
+    })
   })
 </script>
 
@@ -68,27 +182,32 @@ import Dialog from 'primevue/dialog';
 
       <Column header="Financeiro">
         <template #body="slotProps">
-          <div class="actions-container">
-            <Checkbox v-model="slotProps.data.financeiro" :value="true" />
-            <Select :disabled="! slotProps.data.financeiro.length" size="small" :options="options" placeholder="Selecione" />
+          <div class="input-container">
+            <Checkbox v-model="slotProps.data.finantial" :value="true" />
+            <Select v-model="slotProps.data.finantial_role" :disabled="! slotProps.data.finantial.length" size="small" :options="moduleOptions" optionLabel="role" placeholder="Selecione" class="table-select" />
           </div>
         </template>
       </Column>
 
       <Column header="Colaboradores">
         <template #body="slotProps">
-          <div class="actions-container">
-            <Checkbox v-model="slotProps.data.colaboradores" :value="true" />
-            <Select :disabled="! slotProps.data.colaboradores.length" size="small" :options="options" placeholder="Selecione" />
+          <div class="input-container">
+            <Checkbox v-model="slotProps.data.employee" :value="true" />
+            <Select v-model="slotProps.data.employee_role" :disabled="! slotProps.data.employee.length" size="small" :options="moduleOptions"  optionLabel="role" placeholder="Selecione" class="table-select" />
           </div>
         </template>
       </Column>
 
-      <Column header="Ações">
+      <Column header="Permissão na organização">
         <template #body="slotProps">
           <div class="actions-container">
-            <Select size="small" :options="options" v-model="slotProps.data.acao" placeholder="Selecione" />
-            <Button size="small" icon="pi pi-trash" class="p-button-danger" @click="handleDelete(slotProps.data)" />
+            <Select v-if="! isAssignable(slotProps.data)" size="small" optionLabel="role" :options="tenantOptions" v-model="slotProps.data.role" placeholder="Selecione" class="table-select" />
+            <template v-else>{{ tenantTranslations[slotProps.data.role_slug] }}</template>
+
+            <div class="gap-10">
+              <Button v-if="slotProps.data.role_slug !== 'owner'" size="small" icon="pi pi-trash" class="p-button-danger" @click="handleDelete(slotProps.data)" />
+              <Button :disabled="update_request_pending.includes(slotProps.data.user_id)" size="small" label="Salvar" @click="handleSave(slotProps.data)" />
+            </div>
           </div>
         </template>
       </Column>
@@ -121,10 +240,24 @@ import Dialog from 'primevue/dialog';
     padding: 8px 40px;
   }
 
+  .input-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
   .actions-container {
     display: flex;
     align-items: center;
     gap: 10px;
+    justify-content: space-between;
+  }
+
+  .gap-10 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: flex-end
   }
 
   .empty-table  {
@@ -132,4 +265,6 @@ import Dialog from 'primevue/dialog';
     display: flex;
     justify-content: center
   }
+
+  .table-select { width: 10rem; }
 </style>
