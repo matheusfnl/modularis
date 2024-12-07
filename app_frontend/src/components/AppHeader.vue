@@ -2,9 +2,6 @@
   import { ref } from 'vue';
   import { useRouter } from 'vue-router';
 
-  import InputText from 'primevue/inputtext';
-  import IconField from 'primevue/iconfield';
-  import InputIcon from 'primevue/inputicon';
   import TieredMenu from 'primevue/tieredmenu';
 
   import ChevronIcon from '../icons/ChevronIcon.vue';
@@ -17,7 +14,6 @@
   const router = useRouter();
 
   const profileMenu = ref(null);
-  const notificationMenu = ref(null);
   const menuItems = ref([
     { label: 'Sair', command: async () => {
       await store.logout();
@@ -26,7 +22,6 @@
   ]);
 
   const openProfileMenu = (event) => profileMenu.value.toggle(event);
-  const openNotificationMenu = (event) => notificationMenu.value.toggle(event);
 </script>
 
 <template>
@@ -34,6 +29,7 @@
     <div class="header-content">
       <div class="lateral-content">
         <div class="profile-container" @click="openProfileMenu">
+          <span style="font-weight: 500">{{ store.user?.name }}</span>
           <img class="profile-photo" :src="EmptyUser" alt="profile-photo" />
           <ChevronIcon size="12" />
         </div>

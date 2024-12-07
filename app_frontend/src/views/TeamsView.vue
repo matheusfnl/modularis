@@ -64,7 +64,6 @@
     handleCancelDelete();
   }
 
-
   // Show
   const show_modal_visible = ref(false);
   const show_team = ref(null);

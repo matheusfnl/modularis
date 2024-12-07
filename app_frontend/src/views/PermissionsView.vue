@@ -5,6 +5,7 @@ import Dialog from 'primevue/dialog';
   import SectionHeader from '../components/SectionHeader.vue';
   import AddUserModal from '../components/tenant_user/AddUserModal.vue';
   import AppLoading from '../components/AppLoading.vue';
+  import DeletePermissionModal from '../components/permissions/DeletePermissionModal.vue';
 
   import Button from 'primevue/button';
   import DataTable from 'primevue/datatable';
@@ -57,15 +58,6 @@ import Dialog from 'primevue/dialog';
     role: tenantTranslations.value[role],
     slug: role,
   })))
-
-  const handleDelete = async (user) => {
-    await tenantUserStore.detachUser({
-      tenant_id: tenantStore.tenant.id,
-      user_id: user.user_id,
-    });
-
-    users.value = users.value.filter(user_value => user_value.user_id !== user.user_id);
-  };
 
   const update_request_pending = ref([]);
   const handleSave = async (user) => {
@@ -128,7 +120,9 @@ import Dialog from 'primevue/dialog';
       body,
     });
 
-    users.value.unshift(mapUser(tenantUserStore.tenant_users[0]));
+    console.log(body.members[0].email);
+
+    users.value.unshift(mapUser(tenantUserStore.tenant_users[0], body.members[0].email));
     show_add_user_modal.value = false;
     add_user_request_pending.value = false;
   }
@@ -138,27 +132,31 @@ import Dialog from 'primevue/dialog';
   const finantial_users = computed(() => moduleStore.modules?.find(store_module => store_module.name === 'finantial')?.users);
   const employees_users = computed(() => moduleStore.modules?.find(store_module => store_module.name === 'employees')?.users);
 
-  const mapUser = (user) => {
+  const mapUser = (user, email) => {
+    const selected_user = user.user || tenantUserStore.tenant_users.find(tenant_user => tenant_user.user_id === user.user_id);
+
+    console.log(selected_user);
+
     const mapped_user = {
       id: user.id,
-      name: user.user.name,
+      name: selected_user.name || email,
       finantial: [],
       finantial_role: moduleOptions.value[0],
       employee: [],
       employee_role: moduleOptions.value[0],
       role: tenantOptions.value.find(option => option.slug === user.role),
       role_slug: user.role,
-      user_id: user.user.id,
+      user_id: selected_user.id,
     }
 
-    const finantial_user = finantial_users.value.find(finantial_user => finantial_user.user_id === user.user.id);
+    const finantial_user = finantial_users.value?.find(finantial_user => finantial_user.user_id === selected_user.id);
 
     if (finantial_users.value && finantial_user) {
       mapped_user.finantial = [true];
       mapped_user.finantial_role = moduleOptions.value.find(option => option.slug === finantial_user.role);
     }
 
-    const employee_user = employees_users.value.find(employee_user => employee_user.user_id === user.user.id);
+    const employee_user = employees_users.value?.find(employee_user => employee_user.user_id === selected_user.id);
 
     if (employees_users.value && employee_user) {
       mapped_user.employee = [true];
@@ -177,6 +175,32 @@ import Dialog from 'primevue/dialog';
       option.employee_role = moduleOptions.value.find(option => option.slug === 'editor');
     }
   }
+
+  const delete_modal_visible = ref(false);
+  const delete_request_pending = ref(false);
+  const delete_permission = ref(null);
+  const handleOpenDeletePermissionModal = (permission) => {
+    delete_modal_visible.value = true;
+    delete_permission.value = permission;
+  }
+
+  const handleCancelDelete = () => {
+    delete_modal_visible.value = false;
+    delete_permission.value = null;
+  }
+
+  const handleDelete = async (user) => {
+    delete_request_pending.value = true;
+    await tenantUserStore.detachUser({
+      tenant_id: tenantStore.tenant.id,
+      user_id: user.user_id,
+    });
+
+    delete_request_pending.value = false;
+    handleCancelDelete();
+    users.value = users.value.filter(user_value => user_value.user_id !== user.user_id);
+  };
+
 
   onMounted(async () => {
     request_pending.value = true;
@@ -222,7 +246,7 @@ import Dialog from 'primevue/dialog';
             <template v-else>{{ tenantTranslations[slotProps.data.role_slug] }}</template>
 
             <div class="gap-10">
-              <Button v-if="slotProps.data.role_slug !== 'owner'" size="small" icon="pi pi-trash" class="p-button-danger" @click="handleDelete(slotProps.data)" />
+              <Button v-if="slotProps.data.role_slug !== 'owner'" size="small" icon="pi pi-trash" class="p-button-danger" @click="handleOpenDeletePermissionModal(slotProps.data)" />
               <Button :disabled="update_request_pending.includes(slotProps.data.user_id)" size="small" label="Salvar" @click="handleSave(slotProps.data)" />
             </div>
           </div>
@@ -244,6 +268,15 @@ import Dialog from 'primevue/dialog';
       :request_pending="add_user_request_pending"
       @close="show_add_user_modal = false"
       @create="handleCreateUser"
+    />
+  </Dialog>
+
+  <Dialog v-model:visible="delete_modal_visible" modal header="Deletar time" :style="{ width: '28rem' }">
+    <DeletePermissionModal
+      :request_pending="delete_request_pending"
+      :delete_permission="delete_permission"
+      @cancel="handleCancelDelete"
+      @delete="handleDelete"
     />
   </Dialog>
 </template>
