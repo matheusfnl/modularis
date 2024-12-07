@@ -4,7 +4,11 @@
   import Button from 'primevue/button';
   import TieredMenu from 'primevue/tieredmenu';
 
+  import { useModuleStore } from '../../store';
+
   // Actions
+
+  const moduleStore = useModuleStore();
 
   const emit = defineEmits(['edit', 'delete']);
   const actionsMenu = ref(null);
@@ -24,6 +28,14 @@
       command: () => emit('delete', props.team),
     },
   ]);
+
+  const getLeader = computed(() => {
+    if (props.team.leader) {
+      return props.team.leader?.name;
+    }
+
+    return moduleStore.employees.find(employee => employee.id === props.team.leader_id)?.name || 'Não encontrado';
+  })
 
   const props = defineProps({
     team: {
@@ -48,6 +60,15 @@
       <div class="data-container">
         <div class="data">
           <span>{{ props.team.description }}</span>
+        </div>
+
+        <div class="data">
+          <span>Líder:</span>
+          <span>{{ getLeader }}</span>
+        </div>
+
+        <div class="see-more-container">
+          <Button @click="emit('show', props.team)" label="Ver mais" variant="link" class="grey-link" size="small" />
         </div>
       </div>
     </div>
@@ -79,6 +100,11 @@
     text-overflow: ellipsis;
   }
 
+  .grey-link {
+    color: var(--text-5);
+    padding: 0px;
+    min-width: 58px;
+  }
 
   .borderless,
   .borderless:hover,
@@ -93,5 +119,8 @@
   .data {
     display: flex;
     gap: 5px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 16px;
   }
 </style>

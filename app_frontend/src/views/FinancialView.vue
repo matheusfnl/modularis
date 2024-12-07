@@ -181,7 +181,7 @@
         <div class="left-actions">
           <IconField>
               <InputIcon><i class="pi pi-search" /></InputIcon>
-              <InputText v-model="filters" placeholder="Keyword Search" />
+              <InputText v-model="filters" placeholder="Buscar" />
           </IconField>
         </div>
       </div>

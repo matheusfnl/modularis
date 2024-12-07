@@ -9,6 +9,7 @@
   import DeleteTeamModal from '../components/teams/DeleteTeamModal.vue'
   import AppLoading from '../components/AppLoading.vue';
   import TeamItem from '../components/teams/TeamItem.vue';
+  import TeamDataModal from '../components/teams/TeamDataModal.vue';
 
   import Button from 'primevue/button';
 
@@ -63,6 +64,15 @@
     handleCancelDelete();
   }
 
+
+  // Show
+  const show_modal_visible = ref(false);
+  const show_team = ref(null);
+  const handleOpenShowTeamModal = (team) => {
+    show_modal_visible.value = true;
+    show_team.value = team;
+  }
+
   const {
     fetch_request_pending,
     create_request_pending,
@@ -101,6 +111,7 @@
           :team="team"
           @edit="handleOpenEditTeamModal"
           @delete="handleOpenDeleteTeamModal"
+          @show="handleOpenShowTeamModal"
         />
       </div>
     </template>
@@ -136,6 +147,10 @@
       @cancel="handleCancelDelete"
       @delete="handleDelete"
     />
+  </Dialog>
+
+  <Dialog v-model:visible="show_modal_visible" modal header="Dados do time" :style="{ width: '28rem' }">
+    <TeamDataModal :team="show_team" />
   </Dialog>
 </template>
 
