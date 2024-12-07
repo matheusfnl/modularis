@@ -20,6 +20,26 @@
   const tenantStore = useTenantStore();
   const moduleStore = useModuleStore();
 
+  const STATUS = {
+    canceled: 'canceled',
+    paid: 'paid',
+    processing: 'processing',
+    waiting_payment: 'waiting_payment',
+  }
+
+  const types_translations = {
+    adjust: 'Ajuste',
+    income: 'Renda',
+    expense: 'Gasto',
+  }
+
+  const statuses_translations = {
+    canceled: 'Cancelado',
+    paid: 'Pago',
+    processing: 'Processando',
+    waiting_payment: 'Aguardando pagamento',
+  }
+
   // Create
   const create_modal_visible = ref(false);
   const handleCreate = (body) => {
@@ -37,16 +57,31 @@
     deleteModuleItem,
   } = useModuleLoader();
 
-  const products = ref([]);
-  const filters = ref({ global: { value: '' } });
+  const filters = ref('');
   const tenant_user_request_pending = ref(false);
 
-  const getRows = computed(() => products.value.length)
+  const getFinancialItems = computed(() => {
+    let products = moduleStore.module.result?.map((product, index) => ({
+      index: index + 1,
+      id: product.id,
+      amount: product.amount,
+      description: product.description,
+      type: product.type,
+      status: product.status,
+      user: tenantUserStore.tenant_users.find(tenant_user => tenant_user.user.id === product.user_id)?.user || null,
+    })) || [];
+
+    if (filters.value) {
+      products = products.filter(product => {
+        return product.description.toLowerCase().includes(filters.value.toLowerCase());
+      });
+    }
+
+    return products;
+  })
 
   const hasUser = (finance) => !! finance.user;
   const getUser = (finance) => {
-    console.log(finance)
-
     if (hasUser(finance)) {
       return finance.user.name;
     }
@@ -54,19 +89,26 @@
     return 'Sem usuário';
   }
 
+  const getStatusColor = (status) => {
+    if (status === STATUS.canceled) {
+      return 'status-canceled';
+    }
+
+    if (status === STATUS.paid) {
+      return 'status-paid';
+    }
+
+    if (status === STATUS.processing) {
+      return 'status-processing';
+    }
+
+    return 'status-waiting-payment';
+  };
+
   onMounted(async () => {
     tenant_user_request_pending.value = true;
     await tenantUserStore.fetchUsers({ tenant_id: tenantStore.tenant.id });
     tenant_user_request_pending.value = false;
-
-    products.value = moduleStore.module.result.map((product, index) => ({
-      index: index + 1,
-      id: product.id,
-      amount: product.amount,
-      description: product.description,
-      type: product.type,
-      user: tenantUserStore.tenant_users.find(tenant_user => tenant_user.user.id === product.user_id)?.user || null,
-    }))
   });
 </script>
 
@@ -78,9 +120,9 @@
   </SectionHeader>
 
   <DataTable
-    :value="products"
-    :rows="getRows"
-    :totalRecords="products.length"
+    :value="getFinancialItems"
+    :rows="getFinancialItems.length"
+    :totalRecords="getFinancialItems.length"
     tableStyle="min-width: 50rem"
     class="custom-table"
     dataKey="code"
@@ -90,7 +132,7 @@
         <div class="left-actions">
           <IconField>
               <InputIcon><i class="pi pi-search" /></InputIcon>
-              <InputText v-model="filters['global'].value" placeholder="Keyword Search" />
+              <InputText v-model="filters" placeholder="Keyword Search" />
           </IconField>
         </div>
       </div>
@@ -106,12 +148,26 @@
     <Column field="description" header="Descrição" />
     <Column header="Valor">
       <template #body="slotProps">
-        ${{ slotProps.data.amount }}
+        R${{ slotProps.data.amount }}
       </template>
     </Column>
 
-    <Column field="status" header="Status" />
-    <Column field="type" header="Tipo" />
+    <Column header="Status">
+      <template #body="slotProps">
+        <div class="finance-status-container">
+          <div class="finance-status" :class="getStatusColor(slotProps.data.status)">
+            {{ statuses_translations[slotProps.data.status] }}
+          </div>
+        </div>
+      </template>
+    </Column>
+
+    <Column header="Tipo">
+      <template #body="slotProps">
+        {{ types_translations[slotProps.data.type] }}
+      </template>
+    </Column>
+
     <Column header="Usuário">
       <template #body="slotProps">
         <span :class="{ 'userless' : ! hasUser(slotProps.data) }">
@@ -188,4 +244,35 @@
   }
 
   .userless { color: var(--text-4) }
+  .finance-status-container {
+    display: flex;
+    align-items: center;
+  }
+
+  .finance-status {
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 12px;
+    padding: 1px 10px;
+  }
+
+  .status-canceled {
+    background-color: var(--danger-color-1);
+    color: var(--danger-color-2);
+  }
+
+  .status-paid {
+    background-color: var(--success-color-1);
+    color: var(--success-color-2);
+  }
+
+  .status-processing {
+    background-color: var(--info-color-1);
+    color: var(--info-color-3);
+  }
+
+  .status-waiting-payment {
+    background-color: var(--warning-color-1);
+    color: var(--warning-color-3);
+  }
 </style>

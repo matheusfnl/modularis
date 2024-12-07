@@ -25,8 +25,6 @@
   const getSelectedClass = (option) => route.path.startsWith(`/${option.slug}`) ? 'selected' : '';
 
   const handleClickGroupItem = (option) => {
-    console.log(option);
-
     emit('select', option, props.option)
   };
   const handleClick = () => {
