@@ -31,7 +31,7 @@
     <span class="bold-text">{{ getService }}</span>
     <span>.</span>
   </div>
-  <div class="description">Tem certeza que deseja continuar?"</div>
+  <div class="description">Tem certeza que deseja continuar?</div>
 
   <div class="actions-container">
     <Button :disabled="request_pending" type="button" label="Cancelar" severity="secondary" @click="emit('cancel')"></Button>

@@ -8,6 +8,7 @@ import deleteTenant from '../api/tenant/deleteTenant';
 import editTenant  from '../api/tenant/editTenant';
 
 import { handleRequest } from '../helpers/handleRequest';
+import { clearStores } from '../helpers/clearStores';
 
 export const useTenantStore = defineStore('tenant', {
   state: () => ({
@@ -31,6 +32,7 @@ export const useTenantStore = defineStore('tenant', {
     async changeTenant({ tenant }) {
       await handleRequest(async () => {
         const { data } = await changeTenant(tenant.id);
+        clearStores();
 
         localStorage.setItem('@auth', data.token);
         this.tenant = tenant;

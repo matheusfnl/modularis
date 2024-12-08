@@ -46,6 +46,11 @@
     slug: role,
   })));
 
+  const getEmployeesModule = computed(() => moduleStore.modules.find(module => module.name === 'employees') || []);
+  const getFinantialModule = computed(() => moduleStore.modules.find(module => module.name === 'finantial') || []);
+  const hasEmployeeModule = computed(() => !! getEmployeesModule.value?.id);
+  const hasFinancialModule = computed(() => !! getFinantialModule.value?.id);
+
   // User
 
   const tenantTranslations = computed(() => ({
@@ -76,11 +81,9 @@
     }
 
     if (user.finantial.length) {
-      const selected_module = moduleStore.modules.find(module => module.name === 'finantial');
-
       actions.push(moduleStore.attachUser({
         tenant_id: tenantStore.tenant.id,
-        module: selected_module.id,
+        module: getFinantialModule.value.id,
         body: {
           members: [{
             user_id: user.user_id,
@@ -88,19 +91,33 @@
           }]
         }
       }));
+    } else {
+      actions.push(moduleStore.detachUser({
+        tenant_id: tenantStore.tenant.id,
+        module: getFinantialModule.value.id,
+        body: {
+          members: [{ user_id: user.user_id }]
+        }
+      }));
     }
 
     if (user.employee.length) {
-      const selected_module = moduleStore.modules.find(module => module.name === 'employees');
-
       actions.push(moduleStore.attachUser({
         tenant_id: tenantStore.tenant.id,
-        module: selected_module.id,
+        module: getEmployeesModule.value.id,
         body: {
           members: [{
             user_id: user.user_id,
             role: user.employee_role.slug
           }]
+        }
+      }));
+    } else {
+      actions.push(moduleStore.detachUser({
+        tenant_id: tenantStore.tenant.id,
+        module: getEmployeesModule.value.id,
+        body: {
+          members: [{ user_id: user.user_id }]
         }
       }));
     }
@@ -225,7 +242,7 @@
       <Column header="Financeiro">
         <template #body="slotProps">
           <div class="input-container">
-            <Checkbox v-model="slotProps.data.finantial" :value="true" />
+            <Checkbox :disabled="! hasFinancialModule" v-model="slotProps.data.finantial" :value="true" />
             <Select v-model="slotProps.data.finantial_role" :disabled="! slotProps.data.finantial.length" size="small" :options="moduleOptions" optionLabel="role" placeholder="Selecione" class="table-select" />
           </div>
         </template>
@@ -234,7 +251,7 @@
       <Column header="Colaboradores">
         <template #body="slotProps">
           <div class="input-container">
-            <Checkbox v-model="slotProps.data.employee" :value="true" />
+            <Checkbox :disabled="! hasEmployeeModule" v-model="slotProps.data.employee" :value="true" />
             <Select v-model="slotProps.data.employee_role" :disabled="! slotProps.data.employee.length" size="small" :options="moduleOptions"  optionLabel="role" placeholder="Selecione" class="table-select" />
           </div>
         </template>
@@ -247,7 +264,7 @@
             <template v-else>{{ tenantTranslations[slotProps.data.role_slug] }}</template>
 
             <div class="gap-10">
-              <Button v-if="slotProps.data.role_slug !== 'owner'" size="small" icon="pi pi-trash" class="p-button-danger" @click="handleOpenDeletePermissionModal(slotProps.data)" />
+              <Button :disabled="['owner', 'personal'].includes(slotProps.data.role_slug)" size="small" icon="pi pi-trash" class="p-button-danger" @click="handleOpenDeletePermissionModal(slotProps.data)" />
               <Button :disabled="update_request_pending.includes(slotProps.data.user_id)" size="small" label="Salvar" @click="handleSave(slotProps.data)" />
             </div>
           </div>

@@ -78,31 +78,37 @@ export const useModuleStore = defineStore('module', {
       });
     },
     async fetchEmployees({ tenant_id, module }) {
-      const response = await executeModule(tenant_id, module, {
-        service: 'employee',
-        action: 'index',
-        instructions: {},
-      });
+      await handleRequest(async () => {
+        const response = await executeModule(tenant_id, module, {
+          service: 'employee',
+          action: 'index',
+          instructions: {},
+        });
 
-      this.employees = response.result;
+        this.employees = response.result;
+      }, () => this.employees = []);
     },
     async fetchTeams({ tenant_id, module }) {
-      const response = await executeModule(tenant_id, module, {
-        service: 'team',
-        action: 'index',
-        instructions: {},
-      });
+      await handleRequest(async () => {
+        const response = await executeModule(tenant_id, module, {
+          service: 'team',
+          action: 'index',
+          instructions: {},
+        });
 
-      this.teams = response.result;
+        this.teams = response.result;
+      }, () => this.teams = []);
     },
     async fetchFinancial({ tenant_id, module }) {
-      const response = await executeModule(tenant_id, module, {
-        service: 'finantial',
-        action: 'index',
-        instructions: {},
-      });
+      await handleRequest(async () => {
+        const response = await executeModule(tenant_id, module, {
+          service: 'finantial',
+          action: 'index',
+          instructions: {},
+        });
 
-      this.financial = response.result;
+        this.financial = response.result;
+      }, () => this.financial = []);
     }
   }
 });

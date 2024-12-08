@@ -25,6 +25,9 @@ export const useUserStore = defineStore('user', {
         const { data } = await register(body);
         this.user = data;
         localStorage.setItem('@auth', data.token);
+
+        const { data: user } = await fetchUser();
+        this.user = user;
       });
     },
     async logout(body) {
