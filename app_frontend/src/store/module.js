@@ -49,7 +49,10 @@ export const useModuleStore = defineStore('module', {
         if (body.action === 'edit') {
           this.module.result = this.module.result.map((item) => {
             if (item.id === response.result.id) {
-              return response.result;
+              return {
+                ...item,
+                ...response.result,
+              };
             }
 
             return item;

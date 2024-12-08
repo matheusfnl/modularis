@@ -81,7 +81,13 @@
       ...(bank_name.value !== props.edit_employee.bank_account.bank_name && { bank_name: bank_name.value }),
       ...(account.value !== props.edit_employee.bank_account.account && { account: account.value }),
       ...(bank_code.value !== props.edit_employee.bank_account.bank_code && { bank_code: bank_code.value }),
-      // ...(team.value.id !== props.edit_employee.team_id && { team_id: team.value.id }),
+    }
+
+    const originalTeamIds = props.edit_employee.teams.map(team => team.id).sort();
+    const updatedTeamIds = teams.value.map(team => team.id).sort();
+
+    if (JSON.stringify(originalTeamIds) !== JSON.stringify(updatedTeamIds)) {
+      body.teams = teams.value.map(team => ({ team_id: team.id }));
     }
 
     emit('create', body);
@@ -96,7 +102,8 @@
       bank_name.value = props.edit_employee.bank_account.bank_name;
       account.value = props.edit_employee.bank_account.account;
       bank_code.value = props.edit_employee.bank_account.bank_code;
-      // team.value = getTeams.value.find(team => team.id === props.edit_employee.team_id);
+      teams.value = getTeams.value.filter(team =>
+        props.edit_employee.teams.some(editTeam => editTeam.id === team.id));
     }
   })
 </script>
