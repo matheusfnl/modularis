@@ -5,6 +5,7 @@
   import Button from 'primevue/button';
   import InputText from 'primevue/inputtext';
   import Select from 'primevue/select';
+  import MultiSelect from 'primevue/multiselect';
 
   import { useModuleStore } from '../../store';
 
@@ -27,7 +28,7 @@
   const email = ref('');
   const occupation = ref('');
   const salary = ref(0);
-  const team = ref({});
+  const teams = ref([]);
   const registry = ref(uuid.v4());
   const bank_name = ref('');
   const account = ref('');
@@ -63,8 +64,8 @@
       }
     }
 
-    if (team.value.id) {
-      body.team_id = team.value.id;
+    if (teams.value.length) {
+      body.teams = teams.value.map(team => ({ team_id: team.id }));
     }
 
     emit('create', body);
@@ -80,7 +81,7 @@
       ...(bank_name.value !== props.edit_employee.bank_account.bank_name && { bank_name: bank_name.value }),
       ...(account.value !== props.edit_employee.bank_account.account && { account: account.value }),
       ...(bank_code.value !== props.edit_employee.bank_account.bank_code && { bank_code: bank_code.value }),
-      ...(team.value.id !== props.edit_employee.team_id && { team_id: team.value.id }),
+      // ...(team.value.id !== props.edit_employee.team_id && { team_id: team.value.id }),
     }
 
     emit('create', body);
@@ -95,7 +96,7 @@
       bank_name.value = props.edit_employee.bank_account.bank_name;
       account.value = props.edit_employee.bank_account.account;
       bank_code.value = props.edit_employee.bank_account.bank_code;
-      team.value = getTeams.value.find(team => team.id === props.edit_employee.team_id);
+      // team.value = getTeams.value.find(team => team.id === props.edit_employee.team_id);
     }
   })
 </script>
@@ -124,7 +125,7 @@
 
     <div class="input-container">
       <label for="team">Time</label>
-      <Select v-model="team" size="small" :options="getTeams" optionLabel="name" />
+      <MultiSelect v-model="teams" size="small" :options="getTeams" optionLabel="name" filter />
     </div>
 
     <div class="input-container">
